@@ -1,0 +1,51 @@
+{
+  "name": "booking-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "App.ts",
+  "scripts": {
+    "copy:views": "cpx 'views/**/*.hbs' 'dist/views'",
+    "copy:public": "cpx 'public/**/*.{js,css,png,jpg}' 'dist/public'",
+    "start": "node dist/App.js",
+    "dev": "nodemon App.ts",
+    "lint": "eslint . --ext .ts",
+    "build": "rimraf dist && npx tsc && npm run copy:views && npm run copy:public",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.13",
+    "@types/express-handlebars": "^6.0.0",
+    "@types/mongoose": "^5.11.97",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-handlebars": "^6.0.6",
+    "hbs": "^4.2.0",
+    "http": "^0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
+    "md5": "^2.3.0",
+    "moment": "^2.29.3",
+    "path": "^0.12.7",
+    "pg": "^8.7.3",
+    "pg-hstore": "^2.3.4",
+    "pine": "^1.1.1",
+    "sequelize": "^6.20.1",
+    "sequelize-typescript": "^2.1.3",
+    "socket.io": "^4.5.1",
+    "ts-node": "^10.7.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "cpx": "^1.5.0",
+    "eslint": "^8.16.0",
+    "nodemon": "^2.0.16",
+    "typescript": "^4.6.4"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
