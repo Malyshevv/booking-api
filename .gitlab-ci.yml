@@ -45,10 +45,10 @@ variables:
   # KUBE_INGRESS_BASE_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
   # KUBE_INGRESS_BASE_DOMAIN: domain.example.com
 
-  POSTGRES_USER: user
-  POSTGRES_PASSWORD: testing-password
+  POSTGRES_USER: leadhotel
+  POSTGRES_PASSWORD: yD9ndjakq#0aA*
   POSTGRES_ENABLED: "true"
-  POSTGRES_DB: $CI_ENVIRONMENT_SLUG
+  POSTGRES_DB: leadhotel
 
   DOCKER_DRIVER: overlay2
 
