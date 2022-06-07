@@ -8,6 +8,7 @@ const userName = process.env.DB_USER;
 const password = process.env.DB_PASSWORD;
 const database = process.env.DB_NAME;
 const port =  parseInt(process.env.DB_PORT);
+export const SCHEME = process.env.DB_SCHEME;
 
 export const sendQuery = new Pool({
     user: userName,

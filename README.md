@@ -2,8 +2,25 @@
 
 - [Пользователи](#-users)
 - [Авторизация и Регистрация](#-auth)
+- [Работа с бд](#-local-database)
 
-## 🥸 Users
+# 🦾 Local DataBase 
+Для развертывания локальной бд необходимо установить docker 
+
+ - Mac - https://docs.docker.com/desktop/mac/install/
+ - Windows - https://docs.docker.com/desktop/windows/install/
+ - Ubuntu (Linux) - ``` sudo apt install docker-compose```
+
+Далее прописать команду
+```shell
+ docker-compose up -d
+```
+Далее необходимо выолпнить команду миграции для добавления иили обновления таблиц бд.
+```shell
+npm run start:migrations
+```
+
+# 🥸 Users
 Single user - http://localhost:3000/api/users/1
 All users - http://localhost:3000/api/users
 ````

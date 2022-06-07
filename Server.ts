@@ -55,8 +55,8 @@ class Server {
 
     private dbConnect() {
         sendQuery.connect(function (err) {
-            if (err) throw new Error(err);
             console.log(globalMessages['api.db.connected']);
+            if (err) throw new Error(err);
         });
     }
 
