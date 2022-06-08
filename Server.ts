@@ -63,7 +63,6 @@ class Server {
     public socketWorker() {
         const logger = this.logger;
         // const ioClient = this.io;
-        console.log(globalMessages['socket.server.start'])
         this.io.on('connection', (socket) => {
             logger.info(globalMessages['socket.user.connection'] + ': '+ socket.client.id,null)
 

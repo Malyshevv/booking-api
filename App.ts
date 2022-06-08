@@ -8,8 +8,8 @@ const port = parseInt(process.env.NODE_SERVER_PORT || '4000');
 const host = process.env.NODE_SERVER_HOST;
 
 const starter = new server().start(port)
-    .then(port => console.log(`${globalMessages['api.server.start']} - http://${host}:${port}`))
-    .then(() => new APILogger().info(`Сервер запущен ${new Date()}`,null))
+    .then(port => new APILogger().info(`${globalMessages['api.server.start']} - http://${host}:${port}`,null))
+    .then(() => new APILogger().info(globalMessages['api.server.start.finish'],null))
     .catch(error => {
         console.log(error)
     });
