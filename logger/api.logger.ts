@@ -18,11 +18,14 @@ export class APILogger {
         let fileOutput = type === 'error' ? './logger/log/error.log' : './logger/log/output.log';
 
         if (!fs.existsSync(dir)){
-            fs.mkdirSync(dir);
+            fs.promises.mkdir(dir).catch(err => {
+                throw err;
+            });
         }
 
-        fs.appendFile(fileOutput, `\n[${new Date().toISOString()}] - ${type}: [autoLogger] ${messages} ${new Date()}`, (err) => {
-            if(err) throw err;
-        });
+        fs.promises.appendFile(fileOutput, `\n[${new Date().toISOString()}] - ${type}: [autoLogger] ${messages} ${new Date()}`)
+            .catch(err => {
+                throw err;
+            });
     }
 }
