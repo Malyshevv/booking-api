@@ -2,12 +2,12 @@ import * as dotenv from 'dotenv';
 import { Pool } from 'pg';
 dotenv.config();
 
-
-const hostName = process.env.DB_HOST;
-const userName = process.env.DB_USER;
-const password = process.env.DB_PASSWORD;
-const database = process.env.DB_NAME;
-const port =  parseInt(process.env.DB_PORT);
+export const secretKey = process.env.SECRET_KEY_API;
+export const hostName = process.env.DB_HOST;
+export const userName = process.env.DB_USER;
+export const password = process.env.DB_PASSWORD;
+export const database = process.env.DB_NAME;
+export const port =  parseInt(process.env.DB_PORT);
 export const SCHEME = process.env.DB_SCHEME;
 
 export const sendQuery = new Pool({

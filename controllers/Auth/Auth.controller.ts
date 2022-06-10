@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { MainController } from '../MainController';
 import { sendQuery } from "../../config/db.config";
-import {globalMessages} from "../../config/globalMessages";
+import { globalMessages } from "../../config/globalMessages";
 
 export class AuthController extends MainController {
 
@@ -11,7 +11,7 @@ export class AuthController extends MainController {
         super();
     }
 
-    public async create(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async create(req: Request, res: Response): Promise<void> {
         const client = await sendQuery.connect();
         const secretKey = this.env.SECRET_KEY_API;
         let result;
@@ -57,6 +57,9 @@ export class AuthController extends MainController {
 
                 client.release();
                 this.logger.info(globalMessages['api.request.successful'], result);
+
+                // @ts-ignore
+                req.session.user = result;
                 res.status(200).json({
                     result: result
                 });
@@ -70,7 +73,7 @@ export class AuthController extends MainController {
         }
     }
 
-    public async read(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async read(req: Request, res: Response): Promise<void> {
         try {
             const client = await sendQuery.connect();
 
@@ -91,23 +94,25 @@ export class AuthController extends MainController {
             const validated = await bcrypt.compare(req.body.password, user.password)
             !validated && res.status(422).json({ result: globalMessages['api.auth.user.password_error'] });
 
+            // @ts-ignore
+            req.session.user = user;
             res.status(200).json({result: user});
         } catch (err) {
             res.status(500).json(err);
         }
     }
 
-    public async update(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async update(req: Request, res: Response): Promise<void> {
         this.logger.error(globalMessages['api.not_found.method'], req);
         res.status(500).json(globalMessages['api.not_found.method']);
     }
 
-    public async delete(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async delete(req: Request, res: Response): Promise<void> {
         this.logger.error(globalMessages['api.not_found.method'], req);
         res.status(500).json(globalMessages['api.not_found.method']);
     }
 
-    public async readAll(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async readAll(req: Request, res: Response): Promise<void> {
         this.logger.error(globalMessages['api.not_found.method'], req);
         res.status(500).json(globalMessages['api.not_found.method']);
     }

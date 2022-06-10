@@ -1,21 +1,30 @@
 import express from "express";
+/*Logger*/
 import {APILogger} from "./logger/api.logger";
+/*For Request*/
 import cookieParser from "cookie-parser";
+import cors from 'cors';
 import bodyParser from "body-parser";
+/* Path */
 import * as path from 'path'
+/* Templates */
 import hbs from 'hbs';
 import * as expressHbs from 'express-handlebars'
-
+/* Routes */
 import {
     authRouter,
     userRouter,
     staticRouter
 } from './routes/allRoutes';
 
-
+/* For work with db */
 import {sendQuery} from "./config/db.config";
+/* Global messages */
 import {globalMessages} from "./config/globalMessages";
+/* Jwt  */
 import {verifyToken} from "./middleware/jwtAuth";
+/* Session */
+import { sessions } from "./config/store";
 
 class Server {
     public app;
@@ -37,6 +46,16 @@ class Server {
         this.app.use(bodyParser.urlencoded({ extended: true }))
         this.app.use(bodyParser.json()); // 100kb default
         this.app.use(cookieParser());
+        this.app.use(cors());
+        /* See
+        {
+        origin: 'http://localhost:3001',
+        methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+        credentials: true,
+        }
+        */
+
+        this.app.use(sessions)
 
         this.app.engine(
             'hbs',
@@ -54,8 +73,9 @@ class Server {
     }
 
     private dbConnect() {
-        sendQuery.connect(function (err) {
-            console.log(globalMessages['api.db.connected']);
+        const logger = this.logger;
+        sendQuery.connect(function (err:any) {
+            logger.info(globalMessages['api.db.connected'], null)
             if (err) throw new Error(err);
         });
     }

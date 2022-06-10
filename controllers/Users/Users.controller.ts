@@ -9,12 +9,12 @@ export class UsersController extends MainController {
         super();
     }
 
-    public async create(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async create(req: Request, res: Response): Promise<void> {
         this.logger.error(globalMessages['api.not_found.method'], req);
         res.status(500).json(globalMessages['api.not_found.method']);
     }
 
-    public async read(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async read(req: Request, res: Response): Promise<void> {
         try {
             const client = await sendQuery.connect();
 
@@ -32,18 +32,18 @@ export class UsersController extends MainController {
         }
     }
 
-    public async update(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async update(req: Request, res: Response): Promise<void> {
         this.logger.error(globalMessages['api.not_found.method'], req);
         res.status(500).json(globalMessages['api.not_found.method']);
     }
 
-    public async delete(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async delete(req: Request, res: Response): Promise<void> {
         this.logger.error(globalMessages['api.not_found.method'], req);
         res.status(500).json(globalMessages['api.not_found.method']);
 
     }
 
-    public async readAll(req: Request<import("express-serve-static-core").ParamsDictionary>, res: Response): Promise<void> {
+    public async readAll(req: Request, res: Response): Promise<void> {
         this.logger.error(globalMessages['api.not_found.method'], req);
         res.status(500).json(globalMessages['api.not_found.method']);
     }
