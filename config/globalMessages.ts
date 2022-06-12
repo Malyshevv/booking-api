@@ -19,5 +19,8 @@ export const globalMessages = {
     'api.auth.user.password_error': 'Ошибка - неверные пароль',
     'socket.user.connection': 'Пользователь подключился',
     'socket.user.disconnected': 'Пользователь отключился',
-    'socket.server.start': '☕ Socket - работает ☕'
+    'socket.server.start': '☕ Socket - работает ☕',
+    'request.session.destroy': 'Сессия успешно удалена',
+    'request.logout.success': true,
+    'request.logout.error': false,
 }

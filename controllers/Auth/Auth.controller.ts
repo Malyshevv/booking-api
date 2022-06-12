@@ -108,12 +108,18 @@ export class AuthController extends MainController {
     }
 
     public async delete(req: Request, res: Response): Promise<void> {
-        this.logger.error(globalMessages['api.not_found.method'], req);
-        res.status(500).json(globalMessages['api.not_found.method']);
-    }
-
-    public async readAll(req: Request, res: Response): Promise<void> {
-        this.logger.error(globalMessages['api.not_found.method'], req);
-        res.status(500).json(globalMessages['api.not_found.method']);
+        try {
+            // @ts-ignore
+            let sessionData = req.session;
+            // @ts-ignore
+            await req.session.destroy()
+            this.logger.error(globalMessages['request.session.destroy'], sessionData);
+            res.status(200).json({result: globalMessages['request.logout.success']})
+        } catch (e) {
+            this.logger.error(e, null);
+            res.status(500).json({
+                result: e
+            })
+        }
     }
 }

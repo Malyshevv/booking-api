@@ -14,4 +14,8 @@ router.post('/signing', (req,res) => {
     authController.read(req, res);
 })
 
+router.post('/logout', async (req, res) => {
+    authController.delete(req, res);
+});
+
 
