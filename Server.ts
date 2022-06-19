@@ -14,7 +14,10 @@ import * as expressHbs from 'express-handlebars'
 import {
     authRouter,
     userRouter,
-    staticRouter
+    staticRouter,
+    /*Generate Import*/
+
+    /*Generate End Import*/
 } from './routes/allRoutes';
 
 /* For work with db */
@@ -96,6 +99,9 @@ class Server {
         this.app.use('/api/auth', authRouter);
         this.app.use('/api/users',verifyToken, userRouter);
         this.app.use('/', staticRouter);
+        /*Generate Body*/
+
+        /*Generate End  Body*/
     }
 
     public start = (port: number) => {
