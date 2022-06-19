@@ -221,6 +221,7 @@ class Entity
             let save= this.saveEntity(res, this.entityName);
             if (save) {
                 console.log('========= complete ===========')
+                process.exit();
             }
         } else {
             console.log('Entity name required');
