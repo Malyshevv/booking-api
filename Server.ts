@@ -122,7 +122,22 @@ class Server {
 
     public start = (port: number) => {
 
+        /*
+        * const http = http.createServer(app);
+        * const http = https.createServer(this.credentials, this.app)
+        * */
         return new Promise((resolve, reject) => {
+            /* HTTP
+            * const serverHttp = http.listen(port, () => {
+                resolve(port);
+            }).on('error', (err: any) => reject(err));
+            * */
+            /* HTTPS
+            * const serverHttps = https.listen(port, () => {
+                resolve(port);
+            }).on('error', (err: any) => reject(err));
+            * */
+
             const server = this.app.listen(port, () => {
                 resolve(port);
             }).on('error', (err: any) => reject(err));
