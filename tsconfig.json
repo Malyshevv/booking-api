@@ -24,6 +24,7 @@
     "routes/**/*.ts"
   ],
   "exclude": [
+    "scripts/swagger/*",
     "node_modules"
   ]
 }

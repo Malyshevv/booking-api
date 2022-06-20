@@ -1,4 +1,7 @@
 import express from "express";
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
 /*Logger*/
 import {APILogger} from "./logger/api.logger";
 /*For Request*/
@@ -34,11 +37,23 @@ class Server {
     public io;
     public socketIo;
     public logger;
+    public sitemap;
+    public swDocument;
+    public privateKey;
+    public certificate;
+    public credentials;
 
     constructor() {
         this.logger = new APILogger();
         this.app = express();
         this.socketIo = require('socket.io');
+        /* certificate */
+        this.privateKey  = fs.readFileSync('./config/sslcert/privatekey.key', 'utf8');
+        this.certificate = fs.readFileSync('./config/sslcert/certificate.crt', 'utf8');
+        this.credentials = {key: this.privateKey, cert: this.certificate};
+        /* DOC */
+        this.sitemap = require('./scripts/swagger/express-sitemap-html');
+        this.swDocument = require('./config/openapi');
         this.config();
         this.routerConfig();
         this.dbConnect();
@@ -98,13 +113,15 @@ class Server {
     public routerConfig() {
         this.app.use('/api/auth', authRouter);
         this.app.use('/api/users',verifyToken, userRouter);
-        this.app.use('/', staticRouter);
         /*Generate Body*/
 
         /*Generate End  Body*/
+        this.sitemap.swagger(this.swDocument, this.app);
+        this.app.use('/', staticRouter);
     }
 
     public start = (port: number) => {
+
         return new Promise((resolve, reject) => {
             const server = this.app.listen(port, () => {
                 resolve(port);
