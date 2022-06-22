@@ -153,6 +153,7 @@ class Server {
         const server = new this.SMTPServer({
             key: this.credentials.key,
             cert: this.credentials.cert,
+            logger: false,
             authOptional: true,
             onData(stream, session, callback) {
                 MailParser.simpleParser(stream, (err, main) => {
@@ -164,33 +165,29 @@ class Server {
                     logger.info(globalMessages['smtp.server.mail.send'], data)
                     callback(err);
                 });
-                /*stream.pipe(process.stdout); // print message to console
-                stream.on("end", () => {
-                    // reject every other recipient
-                    let response = session.envelope.rcptTo.map((rcpt, i) => {
-                        if (i % 2) {
-                            return new Error("<" + rcpt.address + "> Not accepted");
-                        } else {
-                            return "<" + rcpt.address + "> Accepted";
-                        }
-                    });
-                    return callback(null, response);
-                });*/
             },
-            onMailFrom({address}, session, callback) {
+            onMailFrom(address, session, callback) {
+                if (address.address !== "malyshev.dev@ya.ru") {
+                    logger.error(globalMessages['smtp.server.client.error.email']);
+                    return callback(
+                        new Error(globalMessages['smtp.server.client.error.email'])
+                    );
+                }
                 return callback(); // Accept the address
             },
-            onRcptTo({address}, session, callback) {
-                return callback();
-            },
             onConnect(session, callback) {
+                //console.log("Console in onConnect function>>>",session);
+                if (session.remoteAddress.includes('127.0.0.1','0.0.0.0')) {
+                    return callback(new Error(globalMessages['smtp.server.client.error.localhost']));
+                }
                 return callback(); // Accept the connection
             },
             onAuth(auth, session, callback) {
                 if (auth.username !== process.env.SMTP_USER || auth.password !== process.env.SMTP_PASSWORD) {
-                    return callback(new Error("Invalid username or password"));
+                    logger.error(globalMessages['smtp.server.client.error.login']);
+                    return callback(new Error(globalMessages['smtp.server.client.error.login']));
                 }
-                callback(null, { user: 123 }); // where 123 is the user id or similar property
+                callback(null, { user: { id: 1, username: 'admin'}}); // where 123 is the user id or similar property
             }
         });
 
