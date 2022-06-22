@@ -32,6 +32,7 @@ import {verifyToken} from "./middleware/jwtAuth";
 /* Session */
 import { sessions } from "./config/store";
 import morganBody from "morgan-body";
+import {smtpConfig} from "./config/smtp.config";
 
 class Server {
     public app;
@@ -45,6 +46,9 @@ class Server {
     public credentials;
     public morganBody;
     public saveMorgan;
+    public SMTPServer;
+    public SMTPConnection;
+    public MailParser;
 
     constructor() {
         this.logger = new APILogger();
@@ -52,6 +56,10 @@ class Server {
         this.socketIo = require('socket.io');
         this.morganBody = require('morgan-body');
         this.saveMorgan = morganLogger;
+        /*smtp*/
+        this.SMTPServer = require("smtp-server").SMTPServer;
+        this.SMTPConnection = require("nodemailer");
+        this.MailParser = require('mailparser');
         /* certificate */
         this.privateKey  = fs.readFileSync('./config/sslcert/privatekey.key', 'utf8');
         this.certificate = fs.readFileSync('./config/sslcert/certificate.crt', 'utf8');
@@ -139,6 +147,67 @@ class Server {
         this.app.use('/', staticRouter);
     }
 
+    public smtpServer () {
+        let MailParser = this.MailParser;
+        let logger = this.logger;
+        const server = new this.SMTPServer({
+            key: this.credentials.key,
+            cert: this.credentials.cert,
+            authOptional: true,
+            onData(stream, session, callback) {
+                MailParser.simpleParser(stream, (err, main) => {
+                    let data = {
+                        from: main.from.text,
+                        to: main.to.text,
+                        text: main.text
+                    }
+                    logger.info(globalMessages['smtp.server.mail.send'], data)
+                    callback(err);
+                });
+                /*stream.pipe(process.stdout); // print message to console
+                stream.on("end", () => {
+                    // reject every other recipient
+                    let response = session.envelope.rcptTo.map((rcpt, i) => {
+                        if (i % 2) {
+                            return new Error("<" + rcpt.address + "> Not accepted");
+                        } else {
+                            return "<" + rcpt.address + "> Accepted";
+                        }
+                    });
+                    return callback(null, response);
+                });*/
+            },
+            onMailFrom({address}, session, callback) {
+                return callback(); // Accept the address
+            },
+            onRcptTo({address}, session, callback) {
+                return callback();
+            },
+            onConnect(session, callback) {
+                return callback(); // Accept the connection
+            },
+            onAuth(auth, session, callback) {
+                if (auth.username !== process.env.SMTP_USER || auth.password !== process.env.SMTP_PASSWORD) {
+                    return callback(new Error("Invalid username or password"));
+                }
+                callback(null, { user: 123 }); // where 123 is the user id or similar property
+            }
+        });
+
+        server.listen(465, async () => {
+            if (await this.SMTPTransporter()) {
+                this.logger.info(globalMessages['smtp.server.start'], null)
+            } else {
+                this.logger.info(globalMessages['smtp.server.error'], null)
+            }
+        });
+    }
+
+    public async SMTPTransporter() {
+        this.SMTPConnection = this.SMTPConnection.createTransport(smtpConfig);
+        return this.SMTPConnection;
+    }
+
     public start = (portHttp: number, portHttps: number) => {
 
         return new Promise((resolve, reject) => {
@@ -153,7 +222,7 @@ class Server {
                 resolve(portHttps);
             }).on('error', (err: any) => reject(err));
 
-
+             this.smtpServer();
             /*
             const server = this.app.listen(port, () => {
                 resolve(port);
