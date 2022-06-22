@@ -191,7 +191,7 @@ class Server {
             }
         });
 
-        server.listen(465, async () => {
+        server.listen(process.env.SMTP_PORT, async () => {
             if (await this.SMTPTransporter()) {
                 this.logger.info(globalMessages['smtp.server.start'], null)
             } else {
