@@ -62,9 +62,11 @@ class Server {
         this.SMTPConnection = require("nodemailer");
         this.MailParser = require('mailparser');
         /* certificate */
-        this.privateKey  = fs.readFileSync('./config/sslcert/privatekey.key', 'utf8');
-        this.certificate = fs.readFileSync('./config/sslcert/certificate.crt', 'utf8');
-        this.credentials = {key: this.privateKey, cert: this.certificate};
+        if (process.env.NODE_USE_HTTPS.toUpperCase() !== 'FALSE' || process.env.SMTP_SERVER_ON.toUpperCase() !== 'FALSE') {
+            this.privateKey = fs.readFileSync('./config/sslcert/privatekey.key', 'utf8');
+            this.certificate = fs.readFileSync('./config/sslcert/certificate.crt', 'utf8');
+            this.credentials = {key: this.privateKey, cert: this.certificate};
+        }
         /* DOC */
         this.sitemap = require('./scripts/swagger/express-sitemap-html');
         this.swDocument = require('./config/openapi');
@@ -149,7 +151,7 @@ class Server {
     }
 
     public smtpServer () {
-        if (process.env.SMTP_SERVER_ON === 'FALSE') {
+        if (process.env.SMTP_SERVER_ON.toUpperCase() === 'FALSE') {
             return;
         }
 
@@ -219,17 +221,19 @@ class Server {
     public start = (portHttp: number, portHttps: number) => {
 
         return new Promise((resolve, reject) => {
-
+            let serverHttps;
+            let serverHttp;
             // HTTP
-            const serverHttp =  http.createServer(this.app).listen(portHttp, () => {
+            serverHttp =  http.createServer(this.app).listen(portHttp, () => {
                 resolve(portHttp);
             }).on('error', (err: any) => reject(err));
 
             // HTTPS
-             const serverHttps = https.createServer(this.credentials, this.app).listen(portHttps, () => {
-                resolve(portHttps);
-            }).on('error', (err: any) => reject(err));
-
+            if (process.env.NODE_USE_HTTPS.toUpperCase() !== 'FALSE') {
+                serverHttps = https.createServer(this.credentials, this.app).listen(portHttps, () => {
+                    resolve(portHttps);
+                }).on('error', (err: any) => reject(err));
+            }
              this.smtpServer();
             /*
             const server = this.app.listen(port, () => {
@@ -239,7 +243,9 @@ class Server {
 
             this.io = this.socketIo()
             this.io.attach(serverHttp)
-            this.io.attach(serverHttps)
+            if (process.env.NODE_USE_HTTPS.toUpperCase() !== 'FALSE') {
+                this.io.attach(serverHttps)
+            }
             this.logger.info(globalMessages['socket.server.start'],null)
             this.socketWorker()
         });
