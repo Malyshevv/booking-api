@@ -187,7 +187,7 @@ class Server {
                     logger.error(globalMessages['smtp.server.client.error.login']);
                     return callback(new Error(globalMessages['smtp.server.client.error.login']));
                 }
-                callback(null, { user: { id: 1, username: 'admin'}}); // where 123 is the user id or similar property
+                callback(null, { user: { id: session.id, username: 'admin'}}); // where 123 is the user id or similar property
             }
         });
 
