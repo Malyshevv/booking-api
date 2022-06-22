@@ -5,6 +5,7 @@
 - [Работа с бд](#-local-database)
 - [Работа с командами](#main-commands)
 - [Важная информация](#warning)
+- [Почта](#smtp)
 
 ```
 Страница генерируемая swagger - http://YOUR_HOST/api-docs
@@ -51,6 +52,33 @@ Signup - http://localhost:3000/api/signup
 }
 
 ````
+
+# SMTP
+ - В данной сборки добавлена возможность подключить локальный smtp сервер, для его включения
+необходимо в .env SMTP_SERVER_ON = FALSE сменить на любое другое значения отличимое от FALSE
+после чего вы сможете запустить локальный smtp сервер.
+ - При необходимости вы можете так же использовать такие программы как MAMP PRO или NODEMAILER
+ - Вы можете отредактировать конфиг подключения к smtp в ниже указаном файле
+```javascript
+
+//config/smtp.config.ts
+
+export const smtpConfig = {
+    name: process.env.SMTP_HOST, // smtp.yandex.ru
+    host: process.env.SMTP_HOST, // smtp.yandex.ru
+    port: process.env.SMTP_PORT, // 465
+    logger: false,
+    debug: true,
+    secure: false, // true for 465, false for other ports 
+    auth: {
+        user: process.env.SMTP_USER, // YOUR YANDEX EMAIL
+        pass: process.env.SMTP_PASSWORD, // YOUR YANDEX PASSWORD
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+}
+```
 
 # Main commands
 ``
