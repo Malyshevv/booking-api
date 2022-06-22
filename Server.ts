@@ -49,7 +49,8 @@ class Server {
     public SMTPServer;
     public SMTPConnection;
     public MailParser;
-    public smtpLogger;
+    public checkSMTP;
+    public checkHTTPS;
 
     constructor() {
         this.logger = new APILogger();
@@ -57,12 +58,14 @@ class Server {
         this.socketIo = require('socket.io');
         this.morganBody = require('morgan-body');
         this.saveMorgan = morganLogger;
+        this.checkHTTPS = process.env.NODE_USE_HTTPS.toUpperCase() === 'FALSE';
+        this.checkSMTP = process.env.SMTP_SERVER_ON.toUpperCase() === 'FALSE';
         /*smtp*/
         this.SMTPServer = require("smtp-server").SMTPServer;
         this.SMTPConnection = require("nodemailer");
         this.MailParser = require('mailparser');
         /* certificate */
-        if (process.env.NODE_USE_HTTPS.toUpperCase() !== 'FALSE' || process.env.SMTP_SERVER_ON.toUpperCase() !== 'FALSE') {
+        if (!this.checkHTTPS || !this.checkSMTP) {
             this.privateKey = fs.readFileSync('./config/sslcert/privatekey.key', 'utf8');
             this.certificate = fs.readFileSync('./config/sslcert/certificate.crt', 'utf8');
             this.credentials = {key: this.privateKey, cert: this.certificate};
@@ -151,7 +154,7 @@ class Server {
     }
 
     public smtpServer () {
-        if (process.env.SMTP_SERVER_ON.toUpperCase() === 'FALSE') {
+        if (this.checkSMTP) {
             return;
         }
 
@@ -229,7 +232,7 @@ class Server {
             }).on('error', (err: any) => reject(err));
 
             // HTTPS
-            if (process.env.NODE_USE_HTTPS.toUpperCase() !== 'FALSE') {
+            if (!this.checkHTTPS) {
                 serverHttps = https.createServer(this.credentials, this.app).listen(portHttps, () => {
                     resolve(portHttps);
                 }).on('error', (err: any) => reject(err));
@@ -243,7 +246,7 @@ class Server {
 
             this.io = this.socketIo()
             this.io.attach(serverHttp)
-            if (process.env.NODE_USE_HTTPS.toUpperCase() !== 'FALSE') {
+            if (!this.checkHTTPS) {
                 this.io.attach(serverHttps)
             }
             this.logger.info(globalMessages['socket.server.start'],null)
