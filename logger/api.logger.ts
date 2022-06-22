@@ -1,5 +1,6 @@
 import pine from 'pine';
 import fs from 'fs';
+import path from 'path';
 const logger = pine();
 
 export class APILogger {

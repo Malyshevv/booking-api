@@ -31,6 +31,7 @@ import {globalMessages} from "./config/globalMessages";
 import {verifyToken} from "./middleware/jwtAuth";
 /* Session */
 import { sessions } from "./config/store";
+import morganBody from "morgan-body";
 
 class Server {
     public app;
@@ -42,11 +43,17 @@ class Server {
     public privateKey;
     public certificate;
     public credentials;
+    public morganBody;
+    public saveMorgan;
 
     constructor() {
         this.logger = new APILogger();
         this.app = express();
         this.socketIo = require('socket.io');
+        this.morganBody = require('morgan-body');
+        this.saveMorgan = fs.createWriteStream(
+            path.join(__dirname, "/logger/log", "morgan.log"), { flags: "a" }
+        );
         /* certificate */
         this.privateKey  = fs.readFileSync('./config/sslcert/privatekey.key', 'utf8');
         this.certificate = fs.readFileSync('./config/sslcert/certificate.crt', 'utf8');
@@ -72,6 +79,20 @@ class Server {
         credentials: true,
         }
         */
+        /* Body Logger */
+        this.morganBody(this.app, {
+            logIP: true,
+            logRequestId: true,
+            includeNewLine: true,
+            includeFinalNewLine: true,
+            theme: 'dimmed',
+            noColors: true,
+            DateTimeFormatType: 'utc',
+            logRequestBody: true,
+            prettify: true,
+            logResponseBody: true,
+            stream: this.saveMorgan,
+        });
 
         this.app.use(sessions)
 
@@ -111,6 +132,7 @@ class Server {
     }
 
     public routerConfig() {
+        this.app.set('app', this.app);
         this.app.use('/api/auth', authRouter);
         this.app.use('/api/users',verifyToken, userRouter);
         /*Generate Body*/
