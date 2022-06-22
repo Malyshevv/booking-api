@@ -9,8 +9,9 @@ export const morganLogger = fs.createWriteStream(
 
 export class APILogger {
     info(message, data) {
-        this.fileHandler('info', message);
-        logger.info(`${message}   ${undefined != data ? JSON.stringify(data) : ''}`);
+        let text = `${message}   ${undefined != data ? JSON.stringify(data) : ''}`;
+        this.fileHandler('info', `${text}`);
+        logger.info(`${text}`);
     }
 
     error(message) {
@@ -18,9 +19,26 @@ export class APILogger {
         logger.error(message);
     }
 
+    smtp(message, data) {
+        let text = `${message}   ${undefined != data ? JSON.stringify(data) : ''}`;
+        this.fileHandler('smtp', `${text}`);
+        logger.info(`${text}`);
+    }
+
     fileHandler(type, messages) {
         let dir = './logger/log';
-        let fileOutput = type === 'error' ? './logger/log/error.log' : './logger/log/output.log';
+        let fileOutput;
+        switch (type) {
+            case 'smtp':
+                fileOutput = './logger/log/smtp.log'
+                break;
+            case 'info':
+                fileOutput = './logger/log/output.log'
+                break;
+            case 'error':
+                fileOutput = './logger/log/error.log'
+                break;
+        }
 
         if (!fs.existsSync(dir)){
             fs.promises.mkdir(dir).catch(err => {

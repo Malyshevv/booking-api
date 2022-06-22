@@ -17,9 +17,7 @@ router.get("/routes", function(req, res){
 });
 
 router.post("/email/send", async function(req, res) {
-
     let transporter = nodemailer.createTransport(smtpConfig);
-    let result;
     // @ts-ignore
     let jsonMail = req.body.json;
     if (jsonMail) {

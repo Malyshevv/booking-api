@@ -49,6 +49,7 @@ class Server {
     public SMTPServer;
     public SMTPConnection;
     public MailParser;
+    public smtpLogger;
 
     constructor() {
         this.logger = new APILogger();
@@ -150,6 +151,7 @@ class Server {
     public smtpServer () {
         let MailParser = this.MailParser;
         let logger = this.logger;
+
         const server = new this.SMTPServer({
             key: this.credentials.key,
             cert: this.credentials.cert,
@@ -162,13 +164,13 @@ class Server {
                         to: main.to.text,
                         text: main.text
                     }
-                    logger.info(globalMessages['smtp.server.mail.send'], data)
+                    logger.smtp(globalMessages['smtp.server.mail.send'], data)
                     callback(err);
                 });
             },
             onMailFrom(address, session, callback) {
                 if (address.address !== "malyshev.dev@ya.ru") {
-                    logger.error(globalMessages['smtp.server.client.error.email']);
+                    logger.smtp(globalMessages['smtp.server.client.error.email'], null);
                     return callback(
                         new Error(globalMessages['smtp.server.client.error.email'])
                     );
@@ -178,13 +180,14 @@ class Server {
             onConnect(session, callback) {
                 //console.log("Console in onConnect function>>>",session);
                 if (session.remoteAddress.includes('127.0.0.1','0.0.0.0')) {
+                    logger.smtp(globalMessages['smtp.server.client.error.localhost'], null);
                     return callback(new Error(globalMessages['smtp.server.client.error.localhost']));
                 }
                 return callback(); // Accept the connection
             },
             onAuth(auth, session, callback) {
                 if (auth.username !== process.env.SMTP_USER || auth.password !== process.env.SMTP_PASSWORD) {
-                    logger.error(globalMessages['smtp.server.client.error.login']);
+                    logger.smtp(globalMessages['smtp.server.client.error.login'], null);
                     return callback(new Error(globalMessages['smtp.server.client.error.login']));
                 }
                 callback(null, { user: { id: session.id, username: 'admin'}}); // where 123 is the user id or similar property
@@ -193,9 +196,9 @@ class Server {
 
         server.listen(process.env.SMTP_PORT, async () => {
             if (await this.SMTPTransporter()) {
-                this.logger.info(globalMessages['smtp.server.start'], null)
+                this.logger.smtp(globalMessages['smtp.server.start'], null)
             } else {
-                this.logger.info(globalMessages['smtp.server.error'], null)
+                this.logger.smtp(globalMessages['smtp.server.error'], null)
             }
         });
     }
