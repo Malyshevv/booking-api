@@ -149,6 +149,10 @@ class Server {
     }
 
     public smtpServer () {
+        if (process.env.SMTP_SERVER_ON === 'FALSE') {
+            return;
+        }
+
         let MailParser = this.MailParser;
         let logger = this.logger;
 
