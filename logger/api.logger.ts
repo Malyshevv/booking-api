@@ -1,7 +1,11 @@
 import pine from 'pine';
 import fs from 'fs';
-import path from 'path';
+import path from "path";
 const logger = pine();
+
+export const morganLogger = fs.createWriteStream(
+    path.join(__dirname, "log", "morgan.log"), { flags: "a" }
+);
 
 export class APILogger {
     info(message, data) {

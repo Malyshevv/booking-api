@@ -3,7 +3,7 @@ import http from 'http';
 import https from 'https';
 import fs from 'fs';
 /*Logger*/
-import {APILogger} from "./logger/api.logger";
+import {APILogger, morganLogger} from "./logger/api.logger";
 /*For Request*/
 import cookieParser from "cookie-parser";
 import cors from 'cors';
@@ -51,9 +51,7 @@ class Server {
         this.app = express();
         this.socketIo = require('socket.io');
         this.morganBody = require('morgan-body');
-        this.saveMorgan = fs.createWriteStream(
-            path.join(__dirname, "/logger/log", "morgan.log"), { flags: "a" }
-        );
+        this.saveMorgan = morganLogger;
         /* certificate */
         this.privateKey  = fs.readFileSync('./config/sslcert/privatekey.key', 'utf8');
         this.certificate = fs.readFileSync('./config/sslcert/certificate.crt', 'utf8');
@@ -85,7 +83,6 @@ class Server {
             logRequestId: true,
             includeNewLine: true,
             includeFinalNewLine: true,
-            theme: 'dimmed',
             noColors: true,
             DateTimeFormatType: 'utc',
             logRequestBody: true,
