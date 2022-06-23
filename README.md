@@ -28,8 +28,8 @@ npm run start:migrations
 ```
 
 # 🥸 Users
-Single user - http://localhost:3000/api/users/1
-All users - http://localhost:3000/api/users
+Single user - http://localhost:YOUR_PORT/api/users/1
+All users - http://localhost:YOUR_PORT/api/users
 ````
 Header:
 x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTY1NDE5MjU2Mn0.FPEJdQqEAG_8w--9rER1ogTlFC77eDurX4nBVwZv98k
@@ -39,15 +39,15 @@ x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTY1NDE
 Для получения токена необходимо зарегестрировать нового пользователя, 
 или авторизоваться текущим, в ответ вы получите массив с json данным в котором будет token
 
-Update Profile - http://localhost:3000/api/users/update 
+Update Profile - http://localhost:YOUR_PORT/api/users/update 
 - Visit http://localhost:YOUR_PORT/example for test
 
-Logout - http://localhost:3000/api/users/logout
+Logout - http://localhost:YOUR_PORT/api/users/logout
 - Visit http://localhost:YOUR_PORT/logout for test after auth
 
-Signing - http://localhost:3000/users/api/signing
+Signing - http://localhost:YOUR_PORT/users/api/signing
 
-Signup - http://localhost:3000/users/api/signup
+Signup - http://localhost:YOUR_PORT/users/api/signup
 
 ````json
 // JSON BODY:
