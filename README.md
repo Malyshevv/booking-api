@@ -88,13 +88,13 @@ export const smtpConfig = {
 ```
 
 # Main commands
-``
+```
 - npm run make:entity - генерирует роуты и все необходимые к ним файлы
 - npm run make:migrate - генерирует файл для добавления данных в бд
 - npm run start:migrations - запускает выполнения выше добавленного файла
 - npm run make:view - генерирует страницы
 - npm run zip:logs - архивирование логов
-``
+```
 
 # Warning
 ``` 
