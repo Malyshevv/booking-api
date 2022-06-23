@@ -56,16 +56,20 @@ export class AuthController extends MainController {
                 await client.query('COMMIT');
 
                 client.release();
+
                 this.logger.info(globalMessages['api.request.successful'], result);
 
                 // @ts-ignore
                 req.session.user = result;
+                // @ts-ignore
+                req.session.save()
                 res.status(200).json({
+                    // @ts-ignore
                     result: result
                 });
+            } else {
+                res.status(200).json({ error: globalMessages['api.auth.new_user.find']} );
             }
-
-            res.status(200).json({ error: globalMessages['api.auth.new_user.find']} );
         }
         catch(err) {
             await client.query('ROLLBACK')
@@ -96,6 +100,8 @@ export class AuthController extends MainController {
 
             // @ts-ignore
             req.session.user = user;
+            // @ts-ignore
+            req.session.save()
             res.status(200).json({result: user});
         } catch (err) {
             res.status(500).json(err);

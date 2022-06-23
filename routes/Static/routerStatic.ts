@@ -16,6 +16,10 @@ router.get("/routes", function(req, res){
     res.status(200).json({ routerList: JSON.stringify(listEndpoints(req.app.get('app')))});
 });
 
+router.get("/example", function(req, res){
+    res.render("pages/example.hbs", { title: "Example" });
+});
+
 router.post("/email/send", async function(req, res) {
     let transporter = nodemailer.createTransport(smtpConfig);
     // @ts-ignore

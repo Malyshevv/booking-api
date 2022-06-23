@@ -7,15 +7,15 @@ export const router = express.Router({
 
 
 router.post('/signup', (req,res) => {
-    authController.create(req, res);
+    return authController.create(req, res);
 })
 
 router.post('/signing', (req,res) => {
-    authController.read(req, res);
+    return authController.read(req, res);
 })
 
-router.post('/logout', async (req, res) => {
-    authController.delete(req, res);
+router.get('/logout', async (req, res) => {
+    return authController.delete(req, res);
 });
 
 

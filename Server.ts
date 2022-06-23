@@ -145,7 +145,7 @@ class Server {
     public routerConfig() {
         this.app.set('app', this.app);
         this.app.use('/api/auth', authRouter);
-        this.app.use('/api/users',verifyToken, userRouter);
+        this.app.use('/api/users', userRouter);
         /*Generate Body*/
 
         /*Generate End  Body*/
