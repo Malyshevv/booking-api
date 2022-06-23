@@ -11,16 +11,15 @@ export const router = express.Router({
 });
 
 router.get('/',  (req,res) => {
-    usersController.readAll(req, res);
+    return usersController.readAll(req, res);
 })
 
 router.get('/:id',  (req,res) => {
-    usersController.read(req, res);
+    return usersController.read(req, res);
 })
 
 router.post('/update', uploads.single('avatar'), (req,res) => {
-    //let uploadConf = uploadConfig(req, path.resolve(__dirname, '../../public/img/users'), true);
-    usersController.update(req, res);
+    return usersController.update(req, res);
 })
 
 
