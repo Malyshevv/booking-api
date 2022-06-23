@@ -39,15 +39,15 @@ x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTY1NDE
 Для получения токена необходимо зарегестрировать нового пользователя, 
 или авторизоваться текущим, в ответ вы получите массив с json данным в котором будет token
 
-Update Profile - http://localhost:YOUR_PORT/api/users/update 
-- Visit http://localhost:YOUR_PORT/example for test
+Обновления профиля - http://localhost:YOUR_PORT/api/users/update 
+- Откройте http://localhost:YOUR_PORT/example для использования тестовой формы
 
-Logout - http://localhost:YOUR_PORT/api/users/logout
-- Visit http://localhost:YOUR_PORT/logout for test after auth
+Выход - http://localhost:YOUR_PORT/api/users/logout
+- Откройте http://localhost:YOUR_PORT/logout после авторизации
 
-Signing - http://localhost:YOUR_PORT/users/api/signing
+Авторизация - http://localhost:YOUR_PORT/users/api/signing
 
-Signup - http://localhost:YOUR_PORT/users/api/signup
+Регистрация - http://localhost:YOUR_PORT/users/api/signup
 
 ````json
 // JSON BODY:
