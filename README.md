@@ -39,9 +39,16 @@ x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTY1NDE
 Для получения токена необходимо зарегестрировать нового пользователя, 
 или авторизоваться текущим, в ответ вы получите массив с json данным в котором будет token
 
-Signing - http://localhost:3000/api/signing
+Update Profile - http://localhost:3000/api/users/update 
+- Visit http://localhost:YOUR_PORT/example for test
 
-Signup - http://localhost:3000/api/signup
+Logout - http://localhost:3000/api/users/logout
+- Visit http://localhost:YOUR_PORT/logout for test after auth
+
+Signing - http://localhost:3000/users/api/signing
+
+Signup - http://localhost:3000/users/api/signup
+
 ````json
 // JSON BODY:
 
@@ -86,6 +93,7 @@ export const smtpConfig = {
 - npm run make:migrate - генерирует файл для добавления данных в бд
 - npm run start:migrations - запускает выполнения выше добавленного файла
 - npm run make:view - генерирует страницы
+- npm run zip:logs - архивирование логов
 ``
 
 # Warning
