@@ -14,7 +14,7 @@ router.post('/signing', (req,res) => {
     return authController.read(req, res);
 })
 
-router.get('/logout', async (req, res) => {
+router.post('/logout',(req, res) => {
     return authController.delete(req, res);
 });
 

@@ -3,6 +3,7 @@ import listEndpoints from 'express-list-endpoints';
 import nodemailer from 'nodemailer';
 import {smtpConfig} from "../../config/smtp.config";
 import {verifyToken} from "../../middleware/jwtAuth";
+import {sessions} from "../../config/store";
 
 export const router = express.Router({
     strict: true
@@ -16,8 +17,16 @@ router.get("/routes", function(req, res){
     res.status(200).json({ routerList: JSON.stringify(listEndpoints(req.app.get('app')))});
 });
 
+router.get("/session", function(req, res){
+    // @ts-ignore
+    res.status(200).json({ result: req.session });
+});
+
 router.get("/example", function(req, res){
-    res.render("pages/example.hbs", { title: "Example" });
+    // @ts-ignore
+    console.log(req.session)
+    // @ts-ignore
+    res.render("pages/example.hbs", { title: "Example", session: req.session });
 });
 
 router.post("/email/send", async function(req, res) {

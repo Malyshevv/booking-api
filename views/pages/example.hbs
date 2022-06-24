@@ -4,6 +4,21 @@
         <p class="lead">Your generate this page make:view</p>
         <a class="btn btn-lg btn-primary" href="/" role="button">Go home »</a>
     </div>
+{{#if session.user }}
+    <div class="jumbotron mt-">
+        <h3>Текущая сессия</h3> <br/>
+        <label>ID Пользователя</label> : {{session.user.id}} <br/>
+        <label>Токен</label> : <font size="2">{{session.user.authtoken}}</font>  <br/>
+            {{#if session.user.username }}
+                <label>Имя пользователя</label> : {{session.user.username}} <br/>
+                <label>Почта:</label> : {{session.user.email}} <br/>
+            {{/if}}
+        <a href="/session" class="btn-info btn">Данные сессии</a> <br/> <br/>
+        <form action='/api/auth/logout' method='post'>
+            <input type='submit' class="btn btn-primary" value='Выйти' />
+        </form>
+    </div>
+{{/if}}
     <h3>Example upload</h3>
     <form action='/api/users/update' method='post' enctype="multipart/form-data">
         <div class="form-group">
