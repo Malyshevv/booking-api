@@ -24,8 +24,6 @@ router.get("/session", function(req, res){
 
 router.get("/example", function(req, res){
     // @ts-ignore
-    console.log(req.session)
-    // @ts-ignore
     res.render("pages/example.hbs", { title: "Example", session: req.session });
 });
 

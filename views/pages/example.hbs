@@ -18,6 +18,8 @@
             <input type='submit' class="btn btn-primary" value='Выйти' />
         </form>
     </div>
+{{else}}
+    <div class="alert alert-info">После регистрации или авторизации здесь появится блок с данными сессии, необходимо так же перезагрузить страницу</div>
 {{/if}}
     <h3>Example upload</h3>
     <form action='/api/users/update' method='post' enctype="multipart/form-data">

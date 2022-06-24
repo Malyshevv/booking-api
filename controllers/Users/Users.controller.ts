@@ -37,6 +37,10 @@ export class UsersController extends MainController {
         try {
             let resultUser;
 
+            if (!req.body.id) {
+                res.status(500).json({error: globalMessages['api.user.update.required.id']});
+                return;
+            }
             const sql = "SELECT * FROM users WHERE id = $1";
             const { rows } = await client.query(sql, [parseInt(req.body.id)]);
             const users = rows;
@@ -46,7 +50,8 @@ export class UsersController extends MainController {
                 let fileData = req.file;
 
                 if (!fileData) {
-                    res.send("Ошибка при загрузке файла");
+                    res.status(500).json({error: globalMessages['api.user.update.error.upload']});
+                    return;
                 }
 
                 const userData = {
@@ -72,7 +77,7 @@ export class UsersController extends MainController {
             } else {
 
                 this.logger.info(globalMessages['api.request.error'], null)
-                res.status(200).json({error: 'NOT FOUND'});
+                res.status(200).json({error: globalMessages['api.user.update.find_user.not_found']});
             }
         }
         catch (error) {
