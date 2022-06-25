@@ -8,7 +8,7 @@
     <div class="jumbotron mt-">
         <h3>Текущая сессия</h3> <br/>
         <label>ID Пользователя</label> : {{session.user.id}} <br/>
-        <label>Токен</label> : <font size="2">{{session.user.authtoken}}</font>  <br/>
+        <label>Токен</label> : <font size="2">{{session.user.token}}</font>  <br/>
             {{#if session.user.username }}
                 <label>Имя пользователя</label> : {{session.user.username}} <br/>
                 <label>Почта:</label> : {{session.user.email}} <br/>

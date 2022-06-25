@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import {Request, Response} from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { MainController } from '../MainController';
-import { sendQuery } from "../../config/db.config";
-import { globalMessages } from "../../config/globalMessages";
+import {MainController} from '../MainController';
+import {sendQuery} from "../../config/db.config";
+import {globalMessages} from "../../config/globalMessages";
 
 export class AuthController extends MainController {
 
@@ -48,9 +48,26 @@ export class AuthController extends MainController {
                         jwt.sign({id: resultUser.rows[0].id}, secretKey)
                     ]);
 
+                const query = "SELECT * FROM users WHERE id = $1";
+                const { rows } = await client.query(query, [resultUser.rows[0].id]);
+
+                if (rows[0].usertype === 0) {
+                    rows[0].usertype = 'user';
+                } else if (rows[0].usertype === 1) {
+                    rows[0].usertype = 'admin';
+                } else {
+                    rows[0].usertype = 'banned';
+                }
+
                 result = {
                     id: resultUser.rows[0].id,
-                    token: resultToken.rows[0].authtoken
+                    token: resultToken.rows[0].authtoken,
+                    username: rows[0].username,
+                    email: rows[0].email,
+                    phone: rows[0].phone,
+                    password: rows[0].password,
+                    avatar: rows[0].avatar,
+                    usertype: rows[0].usertype
                 }
 
                 await client.query('COMMIT');
@@ -63,10 +80,12 @@ export class AuthController extends MainController {
                 req.session.user = result;
                 // @ts-ignore
                 req.session.save()
-                res.status(200).json({
+                result = {
                     // @ts-ignore
-                    result: result
-                });
+                    expiresSession: req.session.cookie.expires,
+                    ...result
+                }
+                res.status(200).json(result);
             } else {
                 res.status(200).json({ error: globalMessages['api.auth.new_user.find']} );
             }
@@ -86,10 +105,13 @@ export class AuthController extends MainController {
                 "u.username as username, " +
                 "u.password as password, " +
                 "u.email as email, " +
-                "t.authtoken as authtoken " +
+                "u.avatar as avatar, " +
+                "CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
+                "t.authtoken as token " +
                 "FROM users u " +
                 "LEFT JOIN usertokens t on t.userid = u.id " +
-                "WHERE email = $1";
+                "WHERE u.email = $1";
+
             const result = await client.query(query, [req.body.email]);
 
             let user = result.rows[0];
