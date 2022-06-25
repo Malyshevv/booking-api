@@ -33,6 +33,7 @@ import {verifyToken} from "./middleware/jwtAuth";
 import { sessions } from "./config/store";
 import morganBody from "morgan-body";
 import {smtpConfig} from "./config/smtp.config";
+import {corsConfig} from "./config/cors.config";
 
 class Server {
     public app;
@@ -83,7 +84,8 @@ class Server {
         this.app.use(bodyParser.urlencoded({ extended: true }))
         this.app.use(bodyParser.json()); // 100kb default
         this.app.use(cookieParser());
-        this.app.use(cors());
+        this.app.use(cors(corsConfig));
+
         /* See
         {
         origin: 'http://localhost:3001',
@@ -145,7 +147,7 @@ class Server {
     public routerConfig() {
         this.app.set('app', this.app);
         this.app.use('/api/auth', authRouter);
-        this.app.use('/api/users', userRouter);
+        this.app.use('/api/users', verifyToken, userRouter);
         /*Generate Body*/
 
         /*Generate End  Body*/

@@ -11,7 +11,7 @@ const logger = new APILogger();
 
 export const verifyToken = (req, res, next) => {
     const token =
-        req.body.token || req.query.token || req.headers["x-access-token"];
+        req.body.token || req.query.token || req.headers["x-access-token"] || req.headers["authorization"];
 
     if (!token) {
         logger.error(globalMessages['api.jwt.auth.required'])
