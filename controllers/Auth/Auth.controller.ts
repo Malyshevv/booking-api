@@ -92,7 +92,7 @@ export class AuthController extends MainController {
                 "WHERE email = $1";
             const result = await client.query(query, [req.body.email]);
 
-            const user = result.rows[0];
+            let user = result.rows[0];
 
             if (!user) {
                 res.status(400).json({ error: globalMessages['api.auth.user.not_found'] });
@@ -109,6 +109,11 @@ export class AuthController extends MainController {
             req.session.user = user;
             // @ts-ignore
             req.session.save()
+            user = {
+                // @ts-ignore
+                expiresSession: req.session.cookie.expires,
+                ...user
+            }
             res.status(200).json(user);
         } catch (err) {
             res.status(500).json(err);
@@ -126,7 +131,7 @@ export class AuthController extends MainController {
             let sessionData = req.session;
             // @ts-ignore
             await req.session.destroy()
-            this.logger.error(globalMessages['request.session.destroy'], sessionData);
+            this.logger.info(globalMessages['request.session.destroy'], sessionData);
             res.status(200).json({result: globalMessages['request.logout.success']})
         } catch (e) {
             this.logger.error(e, null);
