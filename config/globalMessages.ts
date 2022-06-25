@@ -2,6 +2,7 @@ export const globalMessages = {
     '500': 'Ошибка 500',
     '400': 'Ошибка 400',
     '403': 'Ошибка 403',
+    'global.error': 'Ошибка - ',
     'global.equals': '=======================',
     'smtp.server.start': '✔ SMTP Сервер запущен ✔',
     'smtp.server.error': 'Ошибка - SMTP Сервер не запущен !',

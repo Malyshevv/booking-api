@@ -74,7 +74,6 @@ export class UsersController extends MainController {
                 this.logger.info(globalMessages['api.request.successful'], users)
                 res.status(200).json({result: users});
             } else {
-
                 this.logger.info(globalMessages['api.request.error'], null)
                 res.status(200).json({error: globalMessages['api.user.update.find_user.not_found']});
             }

@@ -71,11 +71,7 @@ export class AuthController extends MainController {
                 }
 
                 await client.query('COMMIT');
-
                 client.release();
-
-                this.logger.info(globalMessages['api.request.successful'], result);
-
                 // @ts-ignore
                 req.session.user = result;
                 // @ts-ignore
@@ -85,13 +81,16 @@ export class AuthController extends MainController {
                     expiresSession: req.session.cookie.expires,
                     ...result
                 }
+                this.logger.info(globalMessages['api.request.successful'], result);
                 res.status(200).json(result);
             } else {
+                this.logger.error(globalMessages['api.auth.new_user.find'], req);
                 res.status(200).json({ error: globalMessages['api.auth.new_user.find']} );
             }
         }
         catch(err) {
             await client.query('ROLLBACK')
+            this.logger.error(globalMessages['global.error'], err);
             res.status(500).json(err);
         }
     }
@@ -117,12 +116,14 @@ export class AuthController extends MainController {
             let user = result.rows[0];
 
             if (!user) {
+                this.logger.error(globalMessages['api.auth.user.not_found'], req);
                 res.status(400).json({ error: globalMessages['api.auth.user.not_found'] });
                 return;
             }
 
             const validated = await bcrypt.compare(req.body.password, user.password)
             if (!validated) {
+                this.logger.error(globalMessages['api.auth.user.password_error'], req);
                 res.status(422).json({ error: globalMessages['api.auth.user.password_error'] });
                 return;
             }
