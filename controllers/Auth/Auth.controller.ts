@@ -93,16 +93,23 @@ export class AuthController extends MainController {
             const result = await client.query(query, [req.body.email]);
 
             const user = result.rows[0];
-            !user && res.status(400).json({ result: globalMessages['api.auth.user.not_found'] });
+
+            if (!user) {
+                res.status(400).json({ error: globalMessages['api.auth.user.not_found'] });
+                return;
+            }
 
             const validated = await bcrypt.compare(req.body.password, user.password)
-            !validated && res.status(422).json({ result: globalMessages['api.auth.user.password_error'] });
+            if (!validated) {
+                res.status(422).json({ error: globalMessages['api.auth.user.password_error'] });
+                return;
+            }
 
             // @ts-ignore
             req.session.user = user;
             // @ts-ignore
             req.session.save()
-            res.status(200).json({result: user});
+            res.status(200).json(user);
         } catch (err) {
             res.status(500).json(err);
         }
