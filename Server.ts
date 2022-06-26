@@ -34,6 +34,9 @@ import { sessions } from "./config/store";
 import morganBody from "morgan-body";
 import {smtpConfig} from "./config/smtp.config";
 import {corsConfig} from "./config/cors.config";
+/* rabbit */
+import { Channel, Connection } from 'amqplib';
+import {connectRabbit} from "./config/rabbitmq.config";
 
 class Server {
     public app;
@@ -52,6 +55,8 @@ class Server {
     public MailParser;
     public checkSMTP;
     public checkHTTPS;
+    public Channel : Channel;
+    public Connection : Connection;
 
     constructor() {
         this.logger = new APILogger();
@@ -77,6 +82,7 @@ class Server {
         this.config();
         this.routerConfig();
         this.dbConnect();
+        this.rabbitConnect();
     }
 
 
@@ -130,6 +136,19 @@ class Server {
             logger.info(globalMessages['api.db.connected'], null)
             if (err) throw new Error(err);
         });
+    }
+
+    public rabbitConnect() {
+        let me = this;
+        return connectRabbit(this.Connection, this.Channel, this.logger)
+            .then((res) => {
+                if (res) {
+                    me.Connection = res.connection;
+                    me.Channel = res.channel;
+                    this.app.set('rabbitChannel', me.Channel);
+                }
+            })
+            .catch((err) => console.log(err));
     }
 
     public socketWorker() {

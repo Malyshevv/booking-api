@@ -1,5 +1,15 @@
 version: "3.9"
 services:
+  rabbitmq:
+    image: 'rabbitmq:management'
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - ${RABBITMQ_PORT_QUEUE}:${RABBITMQ_PORT_QUEUE}
+      - ${RABBITMQ_PORT_UI}:${RABBITMQ_PORT_UI}
+    env_file:
+      - .env
   postgres:
     image: postgres
     environment:

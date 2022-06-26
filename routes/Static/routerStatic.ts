@@ -4,6 +4,9 @@ import nodemailer from 'nodemailer';
 import {smtpConfig} from "../../config/smtp.config";
 import {verifyToken} from "../../middleware/jwtAuth";
 import {sessions} from "../../config/store";
+import {v4 as uuidv4} from 'uuid';
+import {insertQueueRabbit} from "../../config/rabbitmq.config";
+import {globalMessages} from "../../config/globalMessages";
 
 export const router = express.Router({
     strict: true
@@ -26,6 +29,20 @@ router.get("/example", function(req, res){
     // @ts-ignore
     res.render("pages/example.hbs", { title: "Example", session: req.session });
 });
+
+
+router.post('/orders', async (req, res) => {
+    const data = req.body
+    const rabbitChannel = req.app.get('rabbitChannel');
+
+    if (req.body.queueName) {
+        insertQueueRabbit(rabbitChannel, data);
+        res.status(200).json({ result: globalMessages['rabbit.queue.inserted.successful'] })
+    } else {
+        res.status(200).json({ result: globalMessages['rabbit.queue.required.name'] })
+    }
+
+})
 
 router.post("/email/send", async function(req, res) {
     let transporter = nodemailer.createTransport(smtpConfig);

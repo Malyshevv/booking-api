@@ -23,6 +23,7 @@
     "@types/mongoose": "^5.11.97",
     "@types/uuid": "^8.3.4",
     "adm-zip": "^0.5.9",
+    "amqplib": "^0.10.0",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.20.0",
     "connect-pg-simple": "^7.0.0",
