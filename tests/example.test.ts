@@ -9,7 +9,7 @@ app.use('/', staticRouter);
 
 describe("GET / - a simple api endpoint", () => {
     it("Simple test index page", async () => {
-        const result = await request(app).get("/").then(response => {
+        return await request(app).get("/").then(response => {
             expect(response.statusCode).toBe(200);
         });
     });
@@ -17,7 +17,7 @@ describe("GET / - a simple api endpoint", () => {
 
 describe("GET /users - all users", () => {
     it("All users", async () => {
-        const result = await request(app).get("/users").then(response => {
+        return await request(app).get("/users").then(response => {
             expect(response.statusCode).toBe(200);
         });
     });
@@ -25,7 +25,7 @@ describe("GET /users - all users", () => {
 
 describe("GET /users/1 - single user", () => {
     it("Single user", async () => {
-        const result = await request(app).get("/users/1").then(response => {
+        return await request(app).get("/users/1").then(response => {
             expect(response.statusCode).toBe(200);
         });
     });
