@@ -55,6 +55,7 @@ class Server {
     public MailParser;
     public checkSMTP;
     public checkHTTPS;
+    public checkRABBIT;
     public Channel : Channel;
     public Connection : Connection;
 
@@ -64,6 +65,7 @@ class Server {
         this.socketIo = require('socket.io');
         this.morganBody = require('morgan-body');
         this.saveMorgan = morganLogger;
+        this.checkRABBIT = process.env.RABBITMQ_SERVER_ON.toUpperCase() === 'FALSE';
         this.checkHTTPS = process.env.NODE_USE_HTTPS.toUpperCase() === 'FALSE';
         this.checkSMTP = process.env.SMTP_SERVER_ON.toUpperCase() === 'FALSE';
         /*smtp*/
@@ -82,7 +84,10 @@ class Server {
         this.config();
         this.routerConfig();
         this.dbConnect();
-        this.rabbitConnect();
+        if (!this.checkRABBIT) {
+            this.rabbitConnect();
+        }
+
     }
 
 
