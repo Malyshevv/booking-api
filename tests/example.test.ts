@@ -1,15 +1,32 @@
 import express from 'express';
-import { staticRouter } from "../routes/allRoutes";
+import {staticRouter, userRouter} from "../routes/allRoutes";
 import request from 'supertest';
 
 const app = express();
+app.use('/users', userRouter);
 app.use('/', staticRouter);
+
 
 describe("GET / - a simple api endpoint", () => {
     it("Simple test index page", async () => {
-        const result = await request(app).get("/");
-        expect(result.header['content-type']).toBe('text/html; charset=utf-8');
-        expect(result.statusCode).toBe(200);
-        expect(result.text).toContain('API Header');
+        const result = await request(app).get("/").then(response => {
+            expect(response.statusCode).toBe(200);
+        });
+    });
+});
+
+describe("GET /users - all users", () => {
+    it("All users", async () => {
+        const result = await request(app).get("/users").then(response => {
+            expect(response.statusCode).toBe(200);
+        });
+    });
+});
+
+describe("GET /users/1 - single user", () => {
+    it("Single user", async () => {
+        const result = await request(app).get("/users/1").then(response => {
+            expect(response.statusCode).toBe(200);
+        });
     });
 });
