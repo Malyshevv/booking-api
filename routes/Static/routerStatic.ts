@@ -3,8 +3,7 @@ import listEndpoints from 'express-list-endpoints';
 import nodemailer from 'nodemailer';
 import {smtpConfig} from "../../config/smtp.config";
 import {verifyToken} from "../../middleware/jwtAuth";
-import {sessions} from "../../config/store";
-import {v4 as uuidv4} from 'uuid';
+
 import {insertQueueRabbit} from "../../config/rabbitmq.config";
 import {globalMessages} from "../../config/globalMessages";
 
@@ -16,11 +15,11 @@ router.get("/", (req, res) => {
     res.render("index.hbs", { title: "Главная" });
 });
 
-router.get("/routes", function(req, res){
+router.get("/routes", verifyToken, function(req, res){
     res.status(200).json({ routerList: JSON.stringify(listEndpoints(req.app.get('app')))});
 });
 
-router.get("/session", function(req, res){
+router.get("/session", verifyToken, function(req, res){
     // @ts-ignore
     res.status(200).json({ result: req.session });
 });
@@ -31,7 +30,7 @@ router.get("/example", function(req, res){
 });
 
 
-router.post('/orders', async (req, res) => {
+router.post('/orders', verifyToken, async (req, res) => {
     const data = req.body
     const rabbitChannel = req.app.get('rabbitChannel');
 
@@ -44,7 +43,7 @@ router.post('/orders', async (req, res) => {
 
 })
 
-router.post("/email/send", async function(req, res) {
+router.post("/email/send", verifyToken, async function(req, res) {
     let transporter = nodemailer.createTransport(smtpConfig);
     // @ts-ignore
     let jsonMail = req.body.json;
