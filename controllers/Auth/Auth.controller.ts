@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import {MainController} from '../MainController';
 import {sendQuery} from "../../config/db.config";
 import {globalMessages} from "../../config/globalMessages";
+import { make } from 'simple-body-validator';
 
 export class AuthController extends MainController {
 
@@ -27,7 +28,22 @@ export class AuthController extends MainController {
                 password: hashPass,
             }
 
-            const queryFind = "SELECT * FROM users WHERE email = $1";
+            const rules = {
+                username: ['required', 'string', 'min:3'],
+                email: ['required', 'email'],
+                password: ['required', 'string', 'min:3'],
+            };
+
+            const validator = make(userData, rules);
+
+            if (!validator.validate()) {
+                let err = validator.errors().all();
+                this.logger.error(globalMessages['global.error'] + ' '+ JSON.stringify(err));
+                res.status(500).json({error: err});
+                return;
+            }
+
+            const queryFind = "SELECT id FROM users WHERE email = $1";
             const { rows } = await client.query(queryFind, [userData.email]);
             const findUser = rows;
 
@@ -48,16 +64,21 @@ export class AuthController extends MainController {
                         jwt.sign({id: resultUser.rows[0].id}, secretKey)
                     ]);
 
-                const query = "SELECT * FROM users WHERE id = $1";
+                const query =
+                    "SELECT " +
+                        "u.id as id, " +
+                        "u.username as username, " +
+                        "u.password as password, " +
+                        "u.email as email, " +
+                        "u.avatar as avatar, " +
+                        "ug.name as usertype" +
+                        //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
+                        "t.authtoken as token " +
+                    "FROM users u " +
+                        "LEFT JOIN usertokens t on t.userid = u.id " +
+                        "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
+                    "WHERE u.id = $1";
                 const { rows } = await client.query(query, [resultUser.rows[0].id]);
-
-                if (rows[0].usertype === 0) {
-                    rows[0].usertype = 'user';
-                } else if (rows[0].usertype === 1) {
-                    rows[0].usertype = 'admin';
-                } else {
-                    rows[0].usertype = 'banned';
-                }
 
                 result = {
                     id: resultUser.rows[0].id,
@@ -73,12 +94,17 @@ export class AuthController extends MainController {
                 await client.query('COMMIT');
                 client.release();
                 // @ts-ignore
-                req.session.user = result;
-                // @ts-ignore
-                req.session.save()
+                let sessionData = req.session;
+
+                if (sessionData) {
+                    await sessionData.destroy();
+                }
+
+                sessionData.user = result;
+                sessionData.save();
+
                 result = {
-                    // @ts-ignore
-                    expiresSession: req.session.cookie.expires,
+                    expiresSession: sessionData.cookie.expires,
                     ...result
                 }
                 this.logger.info(globalMessages['api.request.successful'], result);
@@ -99,16 +125,33 @@ export class AuthController extends MainController {
         try {
             const client = await sendQuery.connect();
 
-            const query = "SELECT " +
-                "u.id as id, " +
-                "u.username as username, " +
-                "u.password as password, " +
-                "u.email as email, " +
-                "u.avatar as avatar, " +
-                "CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
-                "t.authtoken as token " +
+            const rules = {
+                email: ['required', 'email'],
+                password: ['required', 'string', 'min:3'],
+            };
+
+            const validator = make(req.body, rules);
+
+            if (!validator.validate()) {
+                let err = validator.errors().all();
+                this.logger.error(globalMessages['global.error'] + ' '+ JSON.stringify(err));
+                res.status(500).json({error: err});
+                return;
+            }
+
+            const query =
+                "SELECT " +
+                    "u.id as id, " +
+                    "u.username as username, " +
+                    "u.password as password, " +
+                    "u.email as email, " +
+                    "u.avatar as avatar, " +
+                    "ug.name as usertype" +
+                    //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
+                    "t.authtoken as token " +
                 "FROM users u " +
-                "LEFT JOIN usertokens t on t.userid = u.id " +
+                    "LEFT JOIN usertokens t on t.userid = u.id " +
+                    "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
                 "WHERE u.email = $1";
 
             const result = await client.query(query, [req.body.email]);
@@ -129,12 +172,17 @@ export class AuthController extends MainController {
             }
 
             // @ts-ignore
-            req.session.user = user;
-            // @ts-ignore
-            req.session.save()
+            let sessionData = req.session;
+
+            if (sessionData) {
+                await sessionData.destroy();
+            }
+
+            sessionData.user = user;
+            await sessionData.save();
+
             user = {
-                // @ts-ignore
-                expiresSession: req.session.cookie.expires,
+                expiresSession: sessionData.cookie.expires,
                 ...user
             }
             res.status(200).json(user);

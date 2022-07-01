@@ -38,6 +38,8 @@ import {corsConfig} from "./config/cors.config";
 import { Channel, Connection } from 'amqplib';
 import {connectRabbit} from "./config/rabbitmq.config";
 
+import fileUpload from 'express-fileupload';
+
 class Server {
     public app;
     public io;
@@ -96,7 +98,7 @@ class Server {
         this.app.use(bodyParser.json()); // 100kb default
         this.app.use(cookieParser());
         this.app.use(cors(corsConfig));
-
+        this.app.use(fileUpload());
         /* See
         {
         origin: 'http://localhost:3001',
@@ -119,6 +121,7 @@ class Server {
         });
 
         this.app.use(sessions)
+        this.app.set("trust proxy", 1);
 
         this.app.engine(
             'hbs',

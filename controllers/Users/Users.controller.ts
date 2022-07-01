@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { MainController } from '../MainController';
 import {sendQuery} from "../../config/db.config";
 import {globalMessages} from "../../config/globalMessages";
+import {uploadImage} from "../../config/upload.config";
 
 export class UsersController extends MainController {
     /*Не забываем конструктор*/
@@ -18,7 +19,21 @@ export class UsersController extends MainController {
         try {
             const client = await sendQuery.connect();
 
-            const sql = "SELECT * FROM users WHERE id = $1";
+            const sql =
+                "SELECT " +
+                    "u.id as id, " +
+                    "u.username as username, " +
+                    "u.password as password, " +
+                    "u.email as email, " +
+                    "u.avatar as avatar, " +
+                    "ug.name as usertype" +
+                    //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
+                    "t.authtoken as token " +
+                "FROM users u " +
+                    "LEFT JOIN usertokens t on t.userid = u.id " +
+                    "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
+                "WHERE u.id = $1";
+
             const { rows } = await client.query(sql, [req.params.id]);
             const users = rows;
 
@@ -34,6 +49,7 @@ export class UsersController extends MainController {
 
     public async update(req: Request, res: Response): Promise<void> {
         const client = await sendQuery.connect();
+        let fileData;
         try {
             let resultUser;
 
@@ -41,13 +57,18 @@ export class UsersController extends MainController {
                 res.status(500).json({error: globalMessages['api.user.update.required.id']});
                 return;
             }
-            const sql = "SELECT * FROM users WHERE id = $1";
+            const sql = "SELECT id FROM users WHERE id = $1";
             const { rows } = await client.query(sql, [parseInt(req.body.id)]);
             const users = rows;
-            // @ts-ignore
+
             if (users.length) {
+                let upload;
+
                 // @ts-ignore
-                let fileData = req.file;
+                if (req.files) {
+                    // @ts-ignore
+                    fileData = req.files;
+                }
 
                 const userData = {
                     id: req.body.id,
@@ -68,11 +89,49 @@ export class UsersController extends MainController {
                         userData.username
                     ]);
 
+                if (fileData) {
+                    upload = await uploadImage(fileData.avatar);
+                    if (!upload) {
+                        this.logger.error(globalMessages['global.error'] + ' ' + JSON.stringify(upload));
+                        res.status(500).json(globalMessages['global.error'] + ' ' + JSON.stringify(upload))
+                        return;
+                    }
+                }
+
+                const query =
+                    "SELECT " +
+                        "u.id as id, " +
+                        "u.username as username, " +
+                        "u.password as password, " +
+                        "u.email as email, " +
+                        "u.avatar as avatar, " +
+                        "ug.name as usertype" +
+                        //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
+                        "t.authtoken as token " +
+                    "FROM users u " +
+                        "LEFT JOIN usertokens t on t.userid = u.id " +
+                        "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
+                    "WHERE u.id = $1";
+
+                const resultUpdate = await client.query(query, [userData.id]);
+
                 await client.query('COMMIT');
                 client.release();
 
-                this.logger.info(globalMessages['api.request.successful'], users)
-                res.status(200).json({result: users});
+                // @ts-ignore
+                let sessionData = req.session;
+
+                sessionData.user = resultUpdate;
+                await sessionData.save();
+                await sessionData.reload();
+
+                let result = {
+                    expiresSession: sessionData.cookie.expires,
+                    ...resultUpdate
+                }
+
+                this.logger.info(globalMessages['api.request.successful'], result)
+                res.status(200).json({result: result});
             } else {
                 this.logger.info(globalMessages['api.request.error'], null)
                 res.status(200).json({error: globalMessages['api.user.update.find_user.not_found']});
@@ -95,7 +154,17 @@ export class UsersController extends MainController {
         try {
             const client = await sendQuery.connect();
 
-            const sql = "SELECT * FROM users";
+            const sql =
+                "SELECT " +
+                    "u.id as id, " +
+                    "u.username as username, " +
+                    "u.email as email, " +
+                    "u.avatar as avatar, " +
+                    "ug.name as usertype" +
+                //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
+                "FROM users u " +
+                    "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
+                "WHERE u.id = $1";
             const { rows } = await client.query(sql);
             const users = rows;
 

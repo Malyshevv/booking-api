@@ -19,7 +19,7 @@ export const sessions = session({
     store: store,
     secret: secretKey,
     saveUninitialized: false,
-    resave: false,
+    resave: true,
     cookie: {
         secure: false,
         httpOnly: false,
