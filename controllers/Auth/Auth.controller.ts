@@ -8,8 +8,46 @@ import { make } from 'simple-body-validator';
 
 export class AuthController extends MainController {
 
+    public rules;
+
     constructor(){
         super();
+    }
+
+    validate(data, res, type) {
+        this.rules = {
+            create: {
+                username: ['required', 'string', 'min:3'],
+                email: ['required', 'email'],
+                password: ['required', 'string', 'min:3'],
+            },
+            read: {
+                email: ['required', 'email'],
+                password: ['required', 'string', 'min:3'],
+            }
+        };
+
+        let rule;
+
+        switch (type) {
+            case 'login' :
+                rule = this.rules.create;
+                break;
+            case 'register':
+                rule = this.rules.read;
+                break;
+        }
+
+        const validator = make(data, rule);
+
+        if (!validator.validate()) {
+            let err = validator.errors().all();
+            this.logger.error(globalMessages['global.error'] + ' '+ JSON.stringify(err));
+            res.status(500).json({error: err});
+            return false;
+        }
+
+        return true;
     }
 
     public async create(req: Request, res: Response): Promise<void> {
@@ -28,18 +66,8 @@ export class AuthController extends MainController {
                 password: hashPass,
             }
 
-            const rules = {
-                username: ['required', 'string', 'min:3'],
-                email: ['required', 'email'],
-                password: ['required', 'string', 'min:3'],
-            };
-
-            const validator = make(userData, rules);
-
-            if (!validator.validate()) {
-                let err = validator.errors().all();
-                this.logger.error(globalMessages['global.error'] + ' '+ JSON.stringify(err));
-                res.status(500).json({error: err});
+            let validate = await this.validate(userData, res, 'login');
+            if (!validate) {
                 return;
             }
 
@@ -71,12 +99,12 @@ export class AuthController extends MainController {
                         "u.password as password, " +
                         "u.email as email, " +
                         "u.avatar as avatar, " +
-                        "ug.name as usertype" +
+                        "ug.name as usertype, " +
                         //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
                         "t.authtoken as token " +
                     "FROM users u " +
                         "LEFT JOIN usertokens t on t.userid = u.id " +
-                        "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
+                        "LEFT JOIN usersgroups ug on ug.id = u.usertype " +
                     "WHERE u.id = $1";
                 const { rows } = await client.query(query, [resultUser.rows[0].id]);
 
@@ -125,17 +153,14 @@ export class AuthController extends MainController {
         try {
             const client = await sendQuery.connect();
 
-            const rules = {
-                email: ['required', 'email'],
-                password: ['required', 'string', 'min:3'],
-            };
+            const userData = {
+                email: req.body.email,
+                password: req.body.password,
+            }
 
-            const validator = make(req.body, rules);
 
-            if (!validator.validate()) {
-                let err = validator.errors().all();
-                this.logger.error(globalMessages['global.error'] + ' '+ JSON.stringify(err));
-                res.status(500).json({error: err});
+            let validate = await this.validate(userData, res, 'register');
+            if (!validate) {
                 return;
             }
 
@@ -146,13 +171,14 @@ export class AuthController extends MainController {
                     "u.password as password, " +
                     "u.email as email, " +
                     "u.avatar as avatar, " +
-                    "ug.name as usertype" +
+                    "ug.name as usertype, " +
                     //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
                     "t.authtoken as token " +
                 "FROM users u " +
                     "LEFT JOIN usertokens t on t.userid = u.id " +
-                    "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
+                    "LEFT JOIN usersgroups ug on ug.id = u.usertype " +
                 "WHERE u.email = $1";
+            console.log(query)
 
             const result = await client.query(query, [req.body.email]);
 

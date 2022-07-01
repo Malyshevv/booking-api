@@ -2,11 +2,7 @@ import { Request, Response } from 'express';
 import {APILogger} from "../logger/api.logger";
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
-import * as dotenv from 'dotenv';
 import fs from "fs";
-import multer  from 'multer';
-
-dotenv.config();
 
 export abstract class MainController {
 
@@ -14,16 +10,15 @@ export abstract class MainController {
     public env;
     public path;
     public fs;
-    public multer;
 
     constructor() {
         this.logger = new APILogger();
         this.env = process.env;
         this.path = path;
         this.fs = fs;
-        this.multer = multer;
     }
 
+    public abstract validate(data: any, res: Response, type: string): void;
     public abstract create(req: Request, res: Response): void;
     public abstract read(req: Request, res: Response): void;
     public abstract update(req: Request, res: Response): void;

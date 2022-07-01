@@ -3,11 +3,28 @@ import { MainController } from '../MainController';
 import {sendQuery} from "../../config/db.config";
 import {globalMessages} from "../../config/globalMessages";
 import {uploadImage} from "../../config/upload.config";
+import {make} from "simple-body-validator";
 
 export class UsersController extends MainController {
+
+    public rules;
+
     /*Не забываем конструктор*/
     constructor(){
         super();
+    }
+
+    validate(data, res) {
+        this.rules = {};
+
+        const validator = make(data, this.rules.create);
+
+        if (!validator.validate()) {
+            let err = validator.errors().all();
+            this.logger.error(globalMessages['global.error'] + ' '+ JSON.stringify(err));
+            res.status(500).json({error: err});
+            return;
+        }
     }
 
     public async create(req: Request, res: Response): Promise<void> {
@@ -26,12 +43,12 @@ export class UsersController extends MainController {
                     "u.password as password, " +
                     "u.email as email, " +
                     "u.avatar as avatar, " +
-                    "ug.name as usertype" +
+                    "ug.name as usertype, " +
                     //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
                     "t.authtoken as token " +
                 "FROM users u " +
                     "LEFT JOIN usertokens t on t.userid = u.id " +
-                    "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
+                    "LEFT JOIN usersgroups ug on ug.id = u.usertype " +
                 "WHERE u.id = $1";
 
             const { rows } = await client.query(sql, [req.params.id]);
@@ -105,12 +122,12 @@ export class UsersController extends MainController {
                         "u.password as password, " +
                         "u.email as email, " +
                         "u.avatar as avatar, " +
-                        "ug.name as usertype" +
+                        "ug.name as usertype, " +
                         //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
                         "t.authtoken as token " +
                     "FROM users u " +
                         "LEFT JOIN usertokens t on t.userid = u.id " +
-                        "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
+                        "LEFT JOIN usersgroups ug on ug.id = u.usertype " +
                     "WHERE u.id = $1";
 
                 const resultUpdate = await client.query(query, [userData.id]);
@@ -163,7 +180,7 @@ export class UsersController extends MainController {
                     "ug.name as usertype" +
                 //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
                 "FROM users u " +
-                    "LEFT JOIN usersgroups ug on ug.id = u.usertype" +
+                    "LEFT JOIN usersgroups ug on ug.id = u.usertype " +
                 "WHERE u.id = $1";
             const { rows } = await client.query(sql);
             const users = rows;
