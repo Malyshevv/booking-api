@@ -178,7 +178,6 @@ export class AuthController extends MainController {
                     "LEFT JOIN usertokens t on t.userid = u.id " +
                     "LEFT JOIN usersgroups ug on ug.id = u.usertype " +
                 "WHERE u.email = $1";
-            console.log(query)
 
             const result = await client.query(query, [req.body.email]);
 
@@ -226,8 +225,7 @@ export class AuthController extends MainController {
         try {
             // @ts-ignore
             let sessionData = req.session;
-            // @ts-ignore
-            await req.session.destroy()
+            await sessionData.destroy()
             this.logger.info(globalMessages['request.session.destroy'], sessionData);
             res.status(200).json({result: globalMessages['request.logout.success']})
         } catch (e) {
