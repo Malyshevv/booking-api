@@ -10,6 +10,31 @@ services:
       - ${RABBITMQ_PORT_UI}:${RABBITMQ_PORT_UI}
     env_file:
       - .env
+  redis:
+    image: 'bitnami/redis:latest'
+    restart: always
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    links:
+      - redis-commander
+    env_file:
+      - .env
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - HTTP_USER=${REDIS_CMD_HTTP_USER}
+      - HTTP_PASSWORD=${REDIS_CMD_HTTP_USER}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=redis:${REDIS_PORT}
+      - REDIS_HOSTS=redis
+    ports:
+      - ${REDIS_UI_PORT}:${REDIS_UI_PORT}
+    env_file:
+      - .env
   postgres:
     image: postgres
     environment:

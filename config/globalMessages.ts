@@ -8,6 +8,8 @@ export const globalMessages = {
     'rabbit.connected.error': 'Ошибка - соединения с Rabbit',
     'rabbit.queue.inserted.successful': 'Очередь добавлена',
     'rabbit.queue.required.name': 'Обязательно указать наименование очереди',
+    'redis.connected.successful': 'Соединения с Redis прошло успешно',
+    'redis.connected.error': 'Ошибка - соединения с Redis',
     'smtp.server.start': '✔ SMTP Сервер запущен ✔',
     'smtp.server.error': 'Ошибка - SMTP Сервер не запущен !',
     'smtp.server.client.connected': '✔ Клиент подключен - SMTP',

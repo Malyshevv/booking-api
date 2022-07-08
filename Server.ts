@@ -39,27 +39,36 @@ import { Channel, Connection } from 'amqplib';
 import {connectRabbit} from "./config/rabbitmq.config";
 
 import fileUpload from 'express-fileupload';
+import {connectRedis} from "./config/redis.config";
 
 class Server {
     public app;
     public io;
     public socketIo;
     public logger;
+
     public sitemap;
     public swDocument;
+
     public privateKey;
     public certificate;
     public credentials;
+
     public morganBody;
     public saveMorgan;
+
     public SMTPServer;
     public SMTPConnection;
     public MailParser;
+
     public checkSMTP;
     public checkHTTPS;
     public checkRABBIT;
+    public checkREDIS;
+
     public Channel : Channel;
     public Connection : Connection;
+    public redis;
 
     constructor() {
         this.logger = new APILogger();
@@ -67,6 +76,7 @@ class Server {
         this.socketIo = require('socket.io');
         this.morganBody = require('morgan-body');
         this.saveMorgan = morganLogger;
+        this.checkREDIS = process.env.REDIS_SERVER_ON.toUpperCase() === 'FALSE';
         this.checkRABBIT = process.env.RABBITMQ_SERVER_ON.toUpperCase() === 'FALSE';
         this.checkHTTPS = process.env.NODE_USE_HTTPS.toUpperCase() === 'FALSE';
         this.checkSMTP = process.env.SMTP_SERVER_ON.toUpperCase() === 'FALSE';
@@ -88,6 +98,9 @@ class Server {
         this.dbConnect();
         if (!this.checkRABBIT) {
             this.rabbitConnect();
+        }
+        if (!this.checkREDIS) {
+            this.redisConnect();
         }
 
     }
@@ -148,12 +161,24 @@ class Server {
 
     public rabbitConnect() {
         let me = this;
-        return connectRabbit(this.Connection, this.Channel, this.logger)
+        connectRabbit(this.Connection, this.Channel, this.logger)
             .then((res) => {
                 if (res) {
                     me.Connection = res.connection;
                     me.Channel = res.channel;
                     this.app.set('rabbitChannel', me.Channel);
+                }
+            })
+            .catch((err) => console.log(err));
+    }
+
+    public redisConnect() {
+        let me = this;
+        connectRedis(me.logger,me.redis)
+            .then((res) => {
+                if (res) {
+                    me.redis = res.redis;
+                    this.app.set('redis', me.redis);
                 }
             })
             .catch((err) => console.log(err));
