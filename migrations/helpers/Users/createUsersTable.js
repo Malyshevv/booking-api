@@ -6,7 +6,7 @@ module.exports =  `
         phone varchar NULL,
         "password" varchar NOT NULL,
         avatar varchar NULL DEFAULT 'https://cdn-icons-png.flaticon.com/512/147/147140.png'::character varying,
-        usertype int4 NULL DEFAULT 1
+        usertype int4 NULL DEFAULT 2
     
     );
 `;
