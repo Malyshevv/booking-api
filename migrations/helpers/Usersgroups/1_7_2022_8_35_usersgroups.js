@@ -3,6 +3,14 @@ module.exports = `
             id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
             name varchar NOT NULL 
             
-            PRIMARY KEY ("id")
         );
+        
+        INSERT INTO public.usersgroups
+        ("name")
+        VALUES('admin');
+        
+        INSERT INTO public.usersgroups
+        ("name")
+        VALUES('user');
+
     `;

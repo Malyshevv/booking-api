@@ -179,14 +179,14 @@ export class UsersController extends MainController {
                     "u.username as username, " +
                     "u.email as email, " +
                     "u.avatar as avatar, " +
-                    "ug.name as usertype" +
+                    "ug.name as usertype " +
                 //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
                 "FROM users u " +
-                "LEFT JOIN usersgroups ug on ug.id = u.usertype ";
+                "LEFT JOIN usersgroups ug on ug.id = u.usertype " +
+                "ORDER BY id DESC";
+
             const { rows } = await client.query(sql);
             const users = rows;
-
-            client.release();
 
             this.logger.info(globalMessages['api.request.successful'], users)
 
