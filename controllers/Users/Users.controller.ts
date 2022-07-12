@@ -33,8 +33,8 @@ export class UsersController extends MainController {
     }
 
     public async read(req: Request, res: Response): Promise<void> {
+        const client = await sendQuery.connect();
         try {
-            const client = await sendQuery.connect();
 
             const sql =
                 "SELECT " +
@@ -54,13 +54,15 @@ export class UsersController extends MainController {
             const { rows } = await client.query(sql, [req.params.id]);
             const users = rows;
 
-            client.release();
+
 
             this.logger.info(globalMessages['api.request.successful'], users)
             res.status(200).json(users[0]);
         } catch (error) {
             this.logger.error('Error. ' + error)
             res.status(400).json({error : error});
+        } finally {
+            client.release();
         }
     }
 
@@ -133,7 +135,6 @@ export class UsersController extends MainController {
                 const resultUpdate = await client.query(query, [userData.id]);
 
                 await client.query('COMMIT');
-                client.release();
 
                 // @ts-ignore
                 let sessionData = req.session;
@@ -158,6 +159,8 @@ export class UsersController extends MainController {
             await client.query('ROLLBACK')
             this.logger.error('Error.' + error)
             res.status(400).json({error : error});
+        } finally {
+            client.release();
         }
     }
 
@@ -168,9 +171,8 @@ export class UsersController extends MainController {
     }
 
     public async readAll(req: Request, res: Response): Promise<void> {
+        const client = await sendQuery.connect();
         try {
-            const client = await sendQuery.connect();
-
             const sql =
                 "SELECT " +
                     "u.id as id, " +
@@ -180,8 +182,7 @@ export class UsersController extends MainController {
                     "ug.name as usertype" +
                 //"CASE WHEN u.usertype = 0 THEN 'user' WHEN u.usertype = 1 THEN 'admin' ELSE 'banned' END as usertype," +
                 "FROM users u " +
-                    "LEFT JOIN usersgroups ug on ug.id = u.usertype " +
-                "WHERE u.id = $1";
+                "LEFT JOIN usersgroups ug on ug.id = u.usertype ";
             const { rows } = await client.query(sql);
             const users = rows;
 
@@ -194,6 +195,8 @@ export class UsersController extends MainController {
         } catch (error) {
             this.logger.error('Error. ' + error)
             res.status(400).json({error : error});
+        } finally {
+            client.release();
         }
     }
 }

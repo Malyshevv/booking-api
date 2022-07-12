@@ -21,6 +21,7 @@ model session {
   expire DateTime @db.Timestamp(6)
 }
 
+
 model users {
   id       Int     @id @default(autoincrement())
   username String  @db.VarChar
@@ -29,15 +30,30 @@ model users {
   password String  @db.VarChar
   avatar   String? @db.VarChar
   usertype Int?    @default(0)
+
 }
+
 
 model usersgroups {
   id   Int    @id @default(autoincrement())
   name String @db.VarChar
+
 }
+
 
 model usertokens {
   id        Int    @id @default(autoincrement())
   userid    Int
   authtoken String @db.VarChar
+
+}
+
+
+model post {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  published Boolean?  @default(false)
+  date_ins  DateTime? @default(now()) @db.Date
+  userid    Int?
 }

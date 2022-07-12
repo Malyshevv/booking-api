@@ -3,6 +3,7 @@ import { router as userRouter } from './Users/routerUsers';
 import { router as staticRouter } from './Static/routerStatic';
 /*Generate Import*/
 
+import { router as postsRouter } from './Posts/routerPosts';
 /*Generate End Import*/
 export {
     authRouter,
@@ -10,5 +11,6 @@ export {
     staticRouter,
     /*Generate Body*/
 
+    postsRouter, 
     /*Generate End Body*/
 };

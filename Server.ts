@@ -20,6 +20,7 @@ import {
     staticRouter,
     /*Generate Import*/
 
+    postsRouter,
     /*Generate End Import*/
 } from './routes/allRoutes';
 
@@ -166,6 +167,7 @@ class Server {
                 if (res) {
                     me.Connection = res.connection;
                     me.Channel = res.channel;
+                    this.app.set('rabbitConnection', me.Connection);
                     this.app.set('rabbitChannel', me.Channel);
                 }
             })
@@ -202,6 +204,7 @@ class Server {
         this.app.use('/api/users', verifyToken, userRouter);
         /*Generate Body*/
 
+        this.app.use('/api/posts', verifyToken, postsRouter);
         /*Generate End  Body*/
         this.sitemap.swagger(this.swDocument, this.app);
         this.app.use('/', staticRouter);

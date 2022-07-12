@@ -7,5 +7,6 @@ module.exports =  `
         "password" varchar NOT NULL,
         avatar varchar NULL,
         usertype int4 NULL DEFAULT 0
+    
     );
 `;

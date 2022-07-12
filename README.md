@@ -6,6 +6,7 @@
 - [Работа с командами](#main-commands)
 - [Важная информация](#warning)
 - [Почта](#smtp)
+- [Rabbit - рассылка email notice](#rabbit)
 
 ```
 Страница генерируемая swagger - http://YOUR_HOST/api-docs
@@ -59,6 +60,26 @@ x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImlhdCI6MTY1NDE
 }
 
 ````
+
+# Rabbit
+router - /sendNoticeEmail
+
+method - POST
+
+Body data - auth required (JWT key)
+```
+Headers
+Content-Type: application/json
+authorization: YOUR KEY
+```
+```Json
+{
+	"queueName": "YOUR QUEUE NAME",
+	"from": "your email",
+	"subject": "YOUR SUBJECT",
+	"text": "YOUR TEXT"
+}
+```
 
 # SMTP
  - В данной сборки добавлена возможность подключить локальный smtp сервер, для его включения

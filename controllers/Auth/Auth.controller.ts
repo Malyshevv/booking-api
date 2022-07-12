@@ -6,6 +6,9 @@ import {sendQuery} from "../../config/db.config";
 import {globalMessages} from "../../config/globalMessages";
 import { make } from 'simple-body-validator';
 
+import {smtpConfig} from "../../config/smtp.config";
+import nodemailer from 'nodemailer';
+
 export class AuthController extends MainController {
 
     public rules;
@@ -53,6 +56,8 @@ export class AuthController extends MainController {
     public async create(req: Request, res: Response): Promise<void> {
         const client = await sendQuery.connect();
         const secretKey = this.env.SECRET_KEY_API;
+        let transporter = nodemailer.createTransport(smtpConfig);
+
         let result;
         let resultUser;
         let resultToken;
@@ -120,13 +125,29 @@ export class AuthController extends MainController {
                 }
 
                 await client.query('COMMIT');
-                client.release();
                 // @ts-ignore
                 let sessionData = req.session;
 
                 if (sessionData) {
                     await sessionData.destroy();
                 }
+
+                let mailOptions = {
+                    from: 'example@email.com',
+                    to: result.email,
+                    subject: 'Registration',
+                    text: `Welcome, your data - email: ${result.email}, password: ${req.body.password}`,
+                    html: `<h1>Welcome, your data: </h1> <p>email: ${result.email}</p> <p>password: ${req.body.password}</p>`,
+                }
+
+                await transporter.sendMail(mailOptions, function(error, info){
+                    if(error){
+                        console.log(JSON.stringify(error));
+                        return error;
+                    } else {
+                        console.log(JSON.stringify(info))
+                    }
+                });
 
                 sessionData.user = result;
                 sessionData.save();
@@ -146,6 +167,8 @@ export class AuthController extends MainController {
             await client.query('ROLLBACK')
             this.logger.error(globalMessages['global.error'], err);
             res.status(500).json(err);
+        } finally {
+            client.release();
         }
     }
 

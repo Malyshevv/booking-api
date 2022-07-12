@@ -207,7 +207,7 @@ class Entity
         return resRouter && resController ? true : false;
     }
 
-    public make()
+    public async make()
     {
 
         while (!this.entityName) {
@@ -218,7 +218,7 @@ class Entity
         }
         if (this.entityName) {
             let res = this.generateEntityTpl(this.entityName);
-            let save= this.saveEntity(res, this.entityName);
+            let save= await this.saveEntity(res, this.entityName);
             if (save) {
                 console.log('========= complete ===========')
                 process.exit();
@@ -246,7 +246,7 @@ class Entity
         }
 
         let tplBodyServer;
-        if (jwtRequire === 'yes') {
+        if (jwtRequire == 'yes') {
             tplBodyServer = `this.app.use('/api/${entityName}',verifyToken, ${entityName}Router);`;
         } else {
             tplBodyServer = `this.app.use('/api/${entityName}',verifyToken, ${entityName}Router);`;
@@ -280,6 +280,8 @@ export class ${entityNameFirstBig}Controller extends MainController {
     constructor(){
         super();
     }
+    
+    validate(data, res, type) {}
         
     public async create(req: Request, res: Response): Promise<void> {
         this.logger.error(globalMessages['api.not_found.method'], req);

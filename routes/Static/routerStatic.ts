@@ -4,8 +4,9 @@ import nodemailer from 'nodemailer';
 import {smtpConfig} from "../../config/smtp.config";
 import {verifyToken} from "../../middleware/jwtAuth";
 
-import {insertQueueRabbit} from "../../config/rabbitmq.config";
+import {insertQueueEmailRabbit, insertQueueRabbit} from "../../config/rabbitmq.config";
 import {globalMessages} from "../../config/globalMessages";
+import {make} from "simple-body-validator";
 
 export const router = express.Router({
     strict: true
@@ -30,16 +31,28 @@ router.get("/example", function(req, res){
 });
 
 
-router.post('/orders', verifyToken, async (req, res) => {
+router.post('/sendNoticeEmail', verifyToken, async (req, res) => {
     const data = req.body
     const rabbitChannel = req.app.get('rabbitChannel');
+    const rabbitConnection = req.app.get('rabbitConnection');
 
-    if (req.body.queueName) {
-        insertQueueRabbit(rabbitChannel, data);
-        res.status(200).json({ result: globalMessages['rabbit.queue.inserted.successful'] })
-    } else {
-        res.status(200).json({ result: globalMessages['rabbit.queue.required.name'] })
+    let rules = {
+        queueName: ['required', 'string', 'min:3'],
+        from: ['required', 'email'],
+        subject: ['required', 'string', 'min:3'],
+        text: ['required', 'string', 'min:3'],
+    };
+
+    const validator = make(data, rules);
+
+    if (!validator.validate()) {
+        let err = validator.errors().all();
+        res.status(500).json({error: err});
+        return false;
     }
+
+    await insertQueueEmailRabbit(rabbitChannel, rabbitConnection, data);
+    res.status(200).json({ result: globalMessages['rabbit.queue.inserted.successful'] })
 
 })
 
