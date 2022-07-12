@@ -1,4 +1,4 @@
-let whitelist = ['http://localhost:5001', 'http://localhost:8081']
+let whitelist = ['http://localhost:5001', 'http://localhost:3000']
 
 export const corsConfig = {
     credentials: true,

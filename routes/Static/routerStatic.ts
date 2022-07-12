@@ -16,11 +16,11 @@ router.get("/", (req, res) => {
     res.render("index.hbs", { title: "Главная" });
 });
 
-router.get("/routes", verifyToken, function(req, res){
+router.get("/routes", function(req, res){
     res.status(200).json({ routerList: JSON.stringify(listEndpoints(req.app.get('app')))});
 });
 
-router.get("/session", verifyToken, function(req, res){
+router.get("/session", function(req, res){
     // @ts-ignore
     res.status(200).json({ result: req.session });
 });

@@ -36,7 +36,7 @@ export function smtpServerConf(credentials, MailParser, logger) {
             });
         },
         onMailFrom(address, session, callback) {
-            if (address.address !== "malyshev.dev@ya.ru") {
+            if (address.address !== process.env.SMTP_SERVER_MAIL) {
                 logger.smtp(globalMessages['smtp.server.client.error.email'], null);
                 return callback(
                     new Error(globalMessages['smtp.server.client.error.email'])

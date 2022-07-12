@@ -133,7 +133,7 @@ export class AuthController extends MainController {
                 }
 
                 let mailOptions = {
-                    from: 'example@email.com',
+                    from: process.env.SMTP_SERVER_MAIL,
                     to: result.email,
                     subject: 'Registration',
                     text: `Welcome, your data - email: ${result.email}, password: ${req.body.password}`,
