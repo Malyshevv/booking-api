@@ -1,6 +1,13 @@
 version: "3.9"
+
+networks:
+  leadhotel_network:
+    driver: bridge
+
 services:
   rabbitmq:
+    networks:
+      - leadhotel_network
     image: 'rabbitmq:management'
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
@@ -12,6 +19,8 @@ services:
       - .env
   redis:
     image: 'bitnami/redis:latest'
+    networks:
+      - leadhotel_network
     restart: always
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
@@ -23,6 +32,8 @@ services:
       - .env
   redis-commander:
     image: rediscommander/redis-commander:latest
+    networks:
+      - leadhotel_network
     restart: always
     environment:
       - HTTP_USER=${REDIS_CMD_HTTP_USER}
@@ -37,6 +48,8 @@ services:
       - .env
   postgres:
     image: postgres
+    networks:
+      - leadhotel_network
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -45,3 +58,24 @@ services:
       - ${DB_PORT}:${DB_PORT}
     env_file:
       - .env
+  backend-app:
+    networks:
+      - leadhotel_network
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    build: ./
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - ${NODE_SERVER_PORT}:${NODE_SERVER_PORT}
+    environment:
+      - NODE_SERVER_PORT_HTTPS=$NODE_SERVER_PORT_HTTPS
+      - NODE_SERVER_PORT=$NODE_SERVER_PORT
+      - NODE_SERVER_HOST=$NODE_SERVER_HOST
+      - NODE_USE_HTTPS=$NODE_USE_HTTPS
+    volumes:
+      - ./:/var/app
+    stdin_open: true
+    tty: true

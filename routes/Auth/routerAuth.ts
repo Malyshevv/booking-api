@@ -6,11 +6,11 @@ export const router = express.Router({
 });
 
 
-router.post('/signup', (req,res) => {
+router.post('/signup/:email&:password&:username', (req,res) => {
     return authController.create(req, res);
 })
 
-router.post('/signing', (req,res) => {
+router.post('/signing/:email&:password', (req,res) => {
     return authController.read(req, res);
 })
 

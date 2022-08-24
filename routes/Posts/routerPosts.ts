@@ -14,11 +14,11 @@ router.get('/:id', (req, res) => {
     postsController.read(req, res);
 });
 
-router.post('/update', (req, res) => {
+router.post('/update/:id&:title&:content&:published', (req, res) => {
     postsController.update(req, res);
 });
 
 
-router.post('/create', (req, res) => {
+router.post('/create/:id&:title&:content&:userid', (req, res) => {
     postsController.create(req, res);
 });
